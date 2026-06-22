@@ -2,13 +2,9 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 
-const basePath = process.env.BASE_PATH
-  ? `/${process.env.BASE_PATH}/`
-  : '/'
-
 export default defineConfig({
   plugins: [vue()],
-  base: basePath,
+  base: './',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
