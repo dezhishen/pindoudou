@@ -1,4 +1,5 @@
 import type { RawPixel, PixelInfo } from '@/types'
+import { findClosestBeadColor } from './colors'
 
 /**
  * 从图片 Blob 生成拼豆像素数据（纯前端实现）

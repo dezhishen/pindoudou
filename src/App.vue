@@ -91,7 +91,6 @@ import { ref } from 'vue'
 import ImageUploader from '@/components/ImageUploader.vue'
 import BeadGrid from '@/components/BeadGrid.vue'
 import { processImage } from '@/utils/imageProcessor'
-import { findClosestBeadColor } from '@/utils/colors'
 import type { ProcessResult, RawPixel } from '@/types'
 import type { BeadColor } from '@/types'
 
