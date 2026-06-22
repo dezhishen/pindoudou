@@ -8,7 +8,9 @@
     </header>
 
     <main class="flex-1 py-2 px-3 w-full">
-      <div v-if="step === 'upload'"><ImageUploader @file-selected="handleFile" /></div>
+      <div v-if="step === 'upload'">
+        <ImageUploader @file-selected="handleFile" />
+      </div>
 
       <div v-if="loading" class="text-center py-10">
         <div class="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin mx-auto mb-4" />
@@ -26,6 +28,24 @@
             <h3 class="text-sm font-medium mb-2">🖼️ 原图</h3>
             <div class="rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
               <img :src="imagePreviewUrl" alt="原图" class="max-w-full h-auto block" />
+            </div>
+          </div>
+          <!-- 透明填充 -->
+          <div v-if="transparentIndices.length > 0" class="card">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-sm font-medium">🔲 透明填充</h3>
+              <span class="text-xs text-gray-400">{{ transparentIndices.length }} 颗</span>
+            </div>
+            <div class="flex gap-1.5 flex-wrap">
+              <button v-for="c in fillPresets" :key="c"
+                class="w-8 h-8 rounded-lg border-2 transition cursor-pointer"
+                :class="fillColor === c ? 'border-primary scale-110' : 'border-gray-200 hover:border-gray-400'"
+                :style="{ background: c }"
+                @click="changeFillColor(c)" />
+              <label class="relative w-8 h-8 rounded-lg border-2 border-gray-200 overflow-hidden cursor-pointer hover:border-gray-400 flex items-center justify-center text-xs text-gray-400">
+                <input type="color" class="absolute inset-0 opacity-0 cursor-pointer" :value="fillColor" @input="changeFillColor(($event.target as HTMLInputElement).value)" />
+                🎨
+              </label>
             </div>
           </div>
           <div class="card">
@@ -71,6 +91,7 @@ import { ref } from 'vue'
 import ImageUploader from '@/components/ImageUploader.vue'
 import BeadGrid from '@/components/BeadGrid.vue'
 import { processImage } from '@/utils/imageProcessor'
+import { findClosestBeadColor } from '@/utils/colors'
 import type { ProcessResult, RawPixel } from '@/types'
 import type { BeadColor } from '@/types'
 
@@ -85,16 +106,22 @@ const drawerOpen = ref(false)
 const gridRef = ref<InstanceType<typeof BeadGrid>>()
 const colorInfo = ref<{ color: BeadColor; count: number }[]>([])
 
+// 透明填充
+const transparentIndices = ref<number[]>([])
+const fillColor = ref('#FFFFFF')
+const fillPresets = ['#FFFFFF', '#EEEEEE', '#CCCCCC', '#000000', '#FF0000', '#00AAFF', '#FFD700']
+
 async function handleFile(file: File) {
   imagePreviewUrl.value = URL.createObjectURL(file)
   loading.value = true; loadingText.value = '正在解析图片...'; error.value = ''
   try {
-    const data = await processImage(file, 256)
+    const data = await processImage(file, 256, fillColor.value)
     result.value = {
       width: data.width, height: data.height,
       originalWidth: data.originalWidth, originalHeight: data.originalHeight,
       pixels: data.pixels.map(p => ({ x: p.x, y: p.y, r: p.r, g: p.g, b: p.b })),
     }
+    transparentIndices.value = data.transparentIndices
     step.value = 'result'
   } catch (err: any) { error.value = err.message || '解析图片失败'; step.value = 'upload' }
   finally { loading.value = false }
@@ -102,7 +129,22 @@ async function handleFile(file: File) {
 
 function resetAll() {
   step.value = 'upload'; loading.value = false; error.value = ''; result.value = null; drawerOpen.value = false
+  transparentIndices.value = []
   if (imagePreviewUrl.value) { URL.revokeObjectURL(imagePreviewUrl.value); imagePreviewUrl.value = '' }
+}
+function changeFillColor(color: string) {
+  fillColor.value = color
+  if (!result.value || !result.value.pixels.length) return
+  const cols = result.value.width
+  const hex = color.replace('#', '')
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
+  const newPixels = [...result.value.pixels]
+  transparentIndices.value.forEach(idx => {
+    newPixels[idx] = { ...newPixels[idx], r, g, b }
+  })
+  result.value = { ...result.value, pixels: newPixels }
 }
 function onGridInfo(info: { colorInfo: { color: BeadColor; count: number }[] }) { colorInfo.value = info.colorInfo }
 function downloadGrid() { gridRef.value?.downloadPNG() }
