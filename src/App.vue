@@ -125,6 +125,14 @@
             </div>
             <p v-if="screenPPI" class="text-[10px] text-gray-400">估算 PPI: {{ screenPPI }}</p>
             <p v-if="!screenPPI && (screenDiagonal || screenResW || screenResH)" class="text-[10px] text-orange-400">请填写完整的屏幕参数</p>
+            <div class="flex gap-1 flex-wrap">
+              <button
+                v-for="preset in screenPresets" :key="preset.label"
+                class="px-2 py-1 text-[10px] rounded-md border transition cursor-pointer"
+                :class="screenDiagonal === preset.d && screenResW === preset.w && screenResH === preset.h ? 'bg-primary text-white border-primary' : 'bg-white text-gray-500 border-gray-200 hover:border-primary hover:text-primary'"
+                @click="applyScreenPreset(preset)"
+              >{{ preset.label }}</button>
+            </div>
           </div>
           <div class="card flex flex-col gap-2">
             <!-- 下载按钮：默认PNG，下拉可选SVG -->
@@ -182,6 +190,20 @@ const showDownloadMenu = ref(false)
 const screenDiagonal = ref<number | null>(null)
 const screenResW = ref<number | null>(null)
 const screenResH = ref<number | null>(null)
+
+const screenPresets = [
+  { label: '💻 14" FHD', d: 14, w: 1920, h: 1080 },
+  { label: '🖥️ 24" FHD', d: 24, w: 1920, h: 1080 },
+  { label: '🖥️ 27" 2K', d: 27, w: 2560, h: 1440 },
+  { label: '🖥️ 27" 4K', d: 27, w: 3840, h: 2160 },
+  { label: '📱 6.7"', d: 6.7, w: 2796, h: 1290 },
+]
+
+function applyScreenPreset(p: typeof screenPresets[number]) {
+  screenDiagonal.value = p.d
+  screenResW.value = p.w
+  screenResH.value = p.h
+}
 
 const screenPPI = computed(() => {
   const d = screenDiagonal.value

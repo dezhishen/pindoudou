@@ -42,7 +42,7 @@
       <span v-else class="text-[10px] text-gray-400">（大号≈{{ Math.round(displayCols * 5 / 10) }}×{{ Math.round(displayRows * 5 / 10) }}cm）</span>
     </div>
 
-    <!-- 拼豆宽度 + 展示模式 -->
+    <!-- 拼豆宽度 -->
     <div class="flex items-center gap-3 flex-wrap">
       <div class="flex items-center gap-1.5">
         <span class="text-xs text-gray-500">拼豆宽度</span>
@@ -54,31 +54,28 @@
         </div>
         <span class="text-xs text-gray-400">颗</span>
       </div>
+    </div>
 
-      <!-- 展示模式切换 -->
-      <!-- 单元格缩放 -->
+    <!-- 单元格缩放 + 实图 + 展示模式 -->
+    <div class="flex items-center gap-3 flex-wrap">
       <div class="flex items-center gap-1.5">
         <span class="text-xs text-gray-500 whitespace-nowrap">单元格</span>
         <div class="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
           <button
             class="px-2 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
             :class="!realSizeMode && cellSize === 6 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
-            :disabled="realSizeMode"
-            @click="cellSize = 6">小</button>
+            @click="setCellSize(6)">小</button>
           <button
             class="px-2 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
             :class="!realSizeMode && cellSize === 8 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
-            :disabled="realSizeMode"
-            @click="cellSize = 8">中</button>
+            @click="setCellSize(8)">中</button>
           <button
             class="px-2 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
             :class="!realSizeMode && cellSize === 12 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
-            :disabled="realSizeMode"
-            @click="cellSize = 12">大</button>
+            @click="setCellSize(12)">大</button>
         </div>
       </div>
 
-      <!-- 实图展示按钮 -->
       <button
         class="px-3 py-1 text-[10px] font-medium rounded-lg border transition cursor-pointer whitespace-nowrap"
         :class="realSizeMode ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-600 border-gray-300 hover:border-orange-400 hover:text-orange-500'"
@@ -228,6 +225,12 @@ const cellSize = ref(8)  // 小6 / 中8 / 大12
 
 // ========== 实图模式 ==========
 const realSizeMode = ref(false)
+
+/** 设置单元格尺寸（若在实图模式则先退出） */
+function setCellSize(size: number) {
+  realSizeMode.value = false
+  cellSize.value = size
+}
 
 /** 根据屏幕参数和豆子尺寸计算实际物理尺寸对应的 CSS 像素 */
 const realCellPx = computed(() => {
