@@ -98,13 +98,14 @@ export function useBeadGrid(
   }
 
   // cols 变化时重新初始化 step（如图片上传后从 0 变为实际值）
-  watch([_cols, _rows], ([c, r]) => {
+  watch([_cols, _rows], ([c]) => {
     if (c <= 0) return
-    const presets = beadCountPresets.value
-    if (presets.length === 0) return
     const targetCols = Math.max(1, Math.floor(600 / BEAD_SIZE))
-    let bestPreset = presets[0]
-    for (const p of presets) {
+    // 直接计算候选预设值（避免 computed 时序问题）
+    const candidates = [c, 128, 64, 32, 16, 8].filter(n => n <= c && n >= 2)
+    if (candidates.length === 0) return
+    let bestPreset = candidates[0]
+    for (const p of candidates) {
       if (Math.abs(p - targetCols) < Math.abs(bestPreset - targetCols)) bestPreset = p
     }
     step.value = Math.max(1, Math.ceil(c / (bestPreset || 1)))
