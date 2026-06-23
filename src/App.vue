@@ -110,12 +110,7 @@
         </div>
         <div class="min-w-0">
           <div class="bg-white rounded-2xl shadow-sm p-2">
-            <BeadGrid v-if="result" ref="gridRef" :pixels="result.pixels" :cols="result.width" :rows="result.height" :strategy-id="currentId" @update-info="onGridInfo" />
-            <div v-else class="flex flex-col items-center justify-center py-20 text-gray-400">
-              <span class="text-6xl mb-4">🧩</span>
-              <p class="text-lg mb-2">上传图片开始生成拼豆图案</p>
-              <p class="text-sm">支持 JPG、PNG、GIF、WEBP 格式</p>
-            </div>
+            <BeadGrid ref="gridRef" :pixels="result?.pixels ?? []" :cols="result?.width ?? 0" :rows="result?.height ?? 0" :strategy-id="currentId" @update-info="onGridInfo" />
           </div>
         </div>
       </div>

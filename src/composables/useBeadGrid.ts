@@ -87,12 +87,14 @@ export function useBeadGrid(
   })
 
   // 初始化：选取最接近 600px 网格宽度的预设值
-  const targetCols = Math.max(1, Math.floor(600 / BEAD_SIZE))
-  let bestPreset = beadCountPresets.value[0] ?? sourceCols
-  for (const c of beadCountPresets.value) {
-    if (Math.abs(c - targetCols) < Math.abs(bestPreset - targetCols)) bestPreset = c
+  if (sourceCols > 0) {
+    const targetCols = Math.max(1, Math.floor(600 / BEAD_SIZE))
+    let bestPreset = beadCountPresets.value[0] ?? sourceCols
+    for (const c of beadCountPresets.value) {
+      if (Math.abs(c - targetCols) < Math.abs(bestPreset - targetCols)) bestPreset = c
+    }
+    step.value = Math.max(1, Math.ceil(sourceCols / (bestPreset || 1)))
   }
-  step.value = Math.max(1, Math.ceil(sourceCols / bestPreset))
 
   /** 由拼豆数量反算 step */
   function setBeadCount(count: number) {
