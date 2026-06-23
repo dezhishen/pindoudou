@@ -11,24 +11,20 @@
     </header>
 
     <main class="flex-1 py-2 px-3 w-full">
-      <!-- 空状态 -->
-      <div v-if="!result && !loading && !error" class="flex flex-col items-center justify-center py-20 text-gray-400">
-        <span class="text-6xl mb-4">🧩</span>
-        <p class="text-lg mb-2">点击「📤 上传图片」开始生成拼豆图案</p>
-        <p class="text-sm">支持 JPG、PNG、GIF、WEBP 格式</p>
-      </div>
-
+      <!-- 加载中 -->
       <div v-if="loading" class="text-center py-10">
         <div class="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin mx-auto mb-4" />
         <p class="text-gray-500">{{ loadingText }}</p>
       </div>
 
+      <!-- 错误 -->
       <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-4 text-sm">
         {{ error }}
         <div class="mt-3"><button class="btn btn-outline" @click="error = ''; showUpload = true">重新上传</button></div>
       </div>
 
-      <div v-if="result" class="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-2 items-start">
+      <!-- 结果页（始终展示，无数据时为空占位） -->
+      <div class="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-2 items-start">
         <div class="flex flex-col gap-3 sticky top-4">
           <div class="card" v-if="imagePreviewUrl">
             <h3 class="text-sm font-medium mb-2">🖼️ 原图</h3>
@@ -72,7 +68,7 @@
               </label>
             </div>
           </div>
-          <div class="card">
+          <div v-if="result" class="card">
             <div class="flex items-center justify-between mb-2">
               <h3 class="text-sm font-medium">🎨 颜色用量</h3>
               <button class="text-xs text-gray-400 border border-gray-200 rounded px-2 py-0.5 hover:border-primary hover:text-primary transition" @click="drawerOpen = !drawerOpen">{{ drawerOpen ? '收起 ▲' : '全部 ▼' }}</button>
@@ -92,7 +88,7 @@
               </div>
             </div>
           </div>
-          <div class="card flex flex-col gap-2">
+          <div v-if="result" class="card flex flex-col gap-2">
             <!-- 下载按钮：默认PNG，下拉可选SVG -->
             <div class="relative flex">
               <button class="btn btn-primary flex-1 rounded-r-none justify-center" @click="downloadGrid">
@@ -114,7 +110,13 @@
         </div>
         <div class="min-w-0">
           <div class="bg-white rounded-2xl shadow-sm p-2">
-            <BeadGrid ref="gridRef" :pixels="result.pixels" :cols="result.width" :rows="result.height" :strategy-id="currentId" @update-info="onGridInfo" />
+            <BeadGrid v-if="result" ref="gridRef" :pixels="result.pixels" :cols="result.width" :rows="result.height" :strategy-id="currentId" @update-info="onGridInfo" />
+            <div v-else class="flex flex-col items-center justify-center py-20 text-gray-400">
+              <span class="text-6xl mb-4">🧩</span>
+              <p class="text-lg mb-2">点击「📤 上传图片」开始生成拼豆图案</p>
+              <p class="text-sm">支持 JPG、PNG、GIF、WEBP 格式</p>
+              <button class="btn btn-primary mt-4" @click="showUpload = true">📤 上传图片</button>
+            </div>
           </div>
         </div>
       </div>
