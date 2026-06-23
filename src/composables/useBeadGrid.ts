@@ -203,9 +203,9 @@ export function useBeadGrid(
     editingIndex.value = null
   }
 
-  // ========== 统计 ==========
+  // ========== 统计（基于当前展示的降采样结果） ==========
   const stats = computed<BeadStats>(() => {
-    const info = computeColorInfo(allBeads.value)
+    const info = computeColorInfo(displayBeads.value)
     return {
       colorInfo: info,
       colors: info.map(i => i.color),
