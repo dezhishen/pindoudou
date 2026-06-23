@@ -87,54 +87,6 @@
             </div>
           </div>
           <div class="card flex flex-col gap-2">
-            <!-- 屏幕参数设置（实图展示） -->
-            <h3 class="text-sm font-medium">📏 实图展示</h3>
-            <p class="text-[10px] text-gray-400 -mt-1">输入屏幕参数，以实际物理尺寸查看拼豆</p>
-            <div class="flex items-center gap-2">
-              <label class="text-xs text-gray-500 whitespace-nowrap">屏幕</label>
-              <input
-                v-model.number="screenDiagonal"
-                type="number"
-                step="0.1"
-                min="1"
-                max="100"
-                placeholder="如 24"
-                class="w-14 px-2 py-1 text-xs border border-gray-300 rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-              />
-              <span class="text-xs text-gray-400">英寸</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <label class="text-xs text-gray-500 whitespace-nowrap">分辨率</label>
-              <input
-                v-model.number="screenResW"
-                type="number"
-                step="1"
-                min="1"
-                placeholder="1920"
-                class="w-14 px-2 py-1 text-xs border border-gray-300 rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-              />
-              <span class="text-xs text-gray-400">×</span>
-              <input
-                v-model.number="screenResH"
-                type="number"
-                step="1"
-                min="1"
-                placeholder="1080"
-                class="w-14 px-2 py-1 text-xs border border-gray-300 rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-              />
-            </div>
-            <p v-if="screenPPI" class="text-[10px] text-gray-400">估算 PPI: {{ screenPPI }}</p>
-            <p v-if="!screenPPI && (screenDiagonal || screenResW || screenResH)" class="text-[10px] text-orange-400">请填写完整的屏幕参数</p>
-            <div class="flex gap-1 flex-wrap">
-              <button
-                v-for="preset in screenPresets" :key="preset.label"
-                class="px-2 py-1 text-[10px] rounded-md border transition cursor-pointer"
-                :class="screenDiagonal === preset.d && screenResW === preset.w && screenResH === preset.h ? 'bg-primary text-white border-primary' : 'bg-white text-gray-500 border-gray-200 hover:border-primary hover:text-primary'"
-                @click="applyScreenPreset(preset)"
-              >{{ preset.label }}</button>
-            </div>
-          </div>
-          <div class="card flex flex-col gap-2">
             <!-- 下载按钮：默认PNG，下拉可选SVG -->
             <div class="relative flex">
               <button class="btn btn-primary flex-1 rounded-r-none justify-center" @click="downloadGrid">
@@ -157,7 +109,7 @@
         </div>
         <div class="min-w-0">
           <div class="bg-white rounded-2xl shadow-sm p-2">
-            <BeadGrid ref="gridRef" :pixels="result.pixels" :cols="result.width" :rows="result.height" :strategy-id="currentId" :screen-diagonal="screenDiagonal ?? undefined" :screen-res-w="screenResW ?? undefined" :screen-res-h="screenResH ?? undefined" @update-info="onGridInfo" />
+            <BeadGrid ref="gridRef" :pixels="result.pixels" :cols="result.width" :rows="result.height" :strategy-id="currentId" @update-info="onGridInfo" />
           </div>
         </div>
       </div>
@@ -168,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import ImageUploader from '@/components/ImageUploader.vue'
 import BeadGrid from '@/components/BeadGrid.vue'
 import { processImage } from '@/utils/imageProcessor'
@@ -185,33 +137,6 @@ const result = ref<ProcessResult | null>(null)
 const imagePreviewUrl = ref('')
 const drawerOpen = ref(false)
 const showDownloadMenu = ref(false)
-
-// 实图展示 - 屏幕参数
-const screenDiagonal = ref<number | null>(null)
-const screenResW = ref<number | null>(null)
-const screenResH = ref<number | null>(null)
-
-const screenPresets = [
-  { label: '💻 14" FHD', d: 14, w: 1920, h: 1080 },
-  { label: '🖥️ 24" FHD', d: 24, w: 1920, h: 1080 },
-  { label: '🖥️ 27" 2K', d: 27, w: 2560, h: 1440 },
-  { label: '🖥️ 27" 4K', d: 27, w: 3840, h: 2160 },
-  { label: '📱 6.7"', d: 6.7, w: 2796, h: 1290 },
-]
-
-function applyScreenPreset(p: typeof screenPresets[number]) {
-  screenDiagonal.value = p.d
-  screenResW.value = p.w
-  screenResH.value = p.h
-}
-
-const screenPPI = computed(() => {
-  const d = screenDiagonal.value
-  const w = screenResW.value
-  const h = screenResH.value
-  if (!d || !w || !h || d <= 0 || w <= 0 || h <= 0) return null
-  return Math.round(Math.sqrt(w * w + h * h) / d)
-})
 
 const gridRef = ref<InstanceType<typeof BeadGrid>>()
 const colorInfo = ref<{ color: BeadColor; count: number }[]>([])

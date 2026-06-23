@@ -73,18 +73,13 @@
             class="px-2 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
             :class="!realSizeMode && cellSize === 12 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
             @click="setCellSize(12)">大</button>
+          <button
+            class="px-2 py-1 text-[10px] font-medium transition cursor-pointer"
+            :class="realSizeMode ? 'bg-orange-500 text-white' : 'text-gray-600 hover:bg-gray-100'"
+            @click="realSizeMode = !realSizeMode"
+            title="实际物理尺寸">📏</button>
         </div>
       </div>
-
-      <button
-        class="px-3 py-1 text-[10px] font-medium rounded-lg border transition cursor-pointer whitespace-nowrap"
-        :class="realSizeMode ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-600 border-gray-300 hover:border-orange-400 hover:text-orange-500'"
-        :disabled="!realCellPx"
-        :title="realCellPx ? `实际尺寸: ${realCellPx}px/颗` : '请先设置屏幕参数'"
-        @click="realSizeMode = !realSizeMode"
-      >
-        📏 实图{{ realSizeMode ? ' ON' : '' }}
-      </button>
 
       <div class="flex items-center gap-1.5">
         <span class="text-xs text-gray-500 whitespace-nowrap">展示</span>
@@ -111,6 +106,27 @@
             🔢 坐标格
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- 实图模式：屏幕参数设置（仅实图激活时显示） -->
+    <div v-if="realSizeMode" class="flex items-center gap-2 flex-wrap bg-orange-50 rounded-lg px-3 py-2">
+      <span class="text-xs text-gray-500 whitespace-nowrap">屏幕</span>
+      <input v-model.number="screenDiagonal" type="number" step="0.1" min="1" max="100" placeholder="尺寸"
+        class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
+      <span class="text-[10px] text-gray-400">英寸</span>
+      <input v-model.number="screenResW" type="number" step="1" min="1" placeholder="宽"
+        class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
+      <span class="text-[10px] text-gray-400">×</span>
+      <input v-model.number="screenResH" type="number" step="1" min="1" placeholder="高"
+        class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
+      <span v-if="screenPPI" class="text-[10px] text-gray-500">PPI≈{{ screenPPI }}</span>
+      <span v-else class="text-[10px] text-orange-400">填写完整参数</span>
+      <div class="flex gap-1 flex-wrap">
+        <button v-for="p in screenPresets" :key="p.label"
+          class="px-1.5 py-0.5 text-[9px] rounded border transition cursor-pointer whitespace-nowrap"
+          :class="screenDiagonal === p.d && screenResW === p.w && screenResH === p.h ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-500 border-gray-200 hover:border-orange-400 hover:text-orange-500'"
+          @click="applyScreenPreset(p)">{{ p.label }}</button>
       </div>
     </div>
 
@@ -196,9 +212,6 @@ const props = defineProps<{
   cols: number
   rows: number
   strategyId?: ColorStrategyId
-  screenDiagonal?: number  // 屏幕对角线英寸
-  screenResW?: number       // 屏幕水平像素
-  screenResH?: number       // 屏幕垂直像素
 }>()
 const emit = defineEmits<{ (e: 'update-info', info: { colorInfo: { color: import('@/types').BeadColor; count: number }[] }): void }>()
 const pixelRef = ref<RawPixel[]>([])
@@ -226,6 +239,33 @@ const cellSize = ref(8)  // 小6 / 中8 / 大12
 // ========== 实图模式 ==========
 const realSizeMode = ref(false)
 
+// 屏幕参数（本地管理）
+const screenDiagonal = ref<number | null>(null)
+const screenResW = ref<number | null>(null)
+const screenResH = ref<number | null>(null)
+
+const screenPPI = computed(() => {
+  const d = screenDiagonal.value
+  const w = screenResW.value
+  const h = screenResH.value
+  if (!d || !w || !h || d <= 0 || w <= 0 || h <= 0) return null
+  return Math.round(Math.sqrt(w * w + h * h) / d)
+})
+
+const screenPresets = [
+  { label: '14"FHD', d: 14, w: 1920, h: 1080 },
+  { label: '24"FHD', d: 24, w: 1920, h: 1080 },
+  { label: '27"2K', d: 27, w: 2560, h: 1440 },
+  { label: '27"4K', d: 27, w: 3840, h: 2160 },
+  { label: '6.7"', d: 6.7, w: 2796, h: 1290 },
+]
+
+function applyScreenPreset(p: typeof screenPresets[number]) {
+  screenDiagonal.value = p.d
+  screenResW.value = p.w
+  screenResH.value = p.h
+}
+
 /** 设置单元格尺寸（若在实图模式则先退出） */
 function setCellSize(size: number) {
   realSizeMode.value = false
@@ -234,9 +274,9 @@ function setCellSize(size: number) {
 
 /** 根据屏幕参数和豆子尺寸计算实际物理尺寸对应的 CSS 像素 */
 const realCellPx = computed(() => {
-  const d = props.screenDiagonal
-  const w = props.screenResW
-  const h = props.screenResH
+  const d = screenDiagonal.value
+  const w = screenResW.value
+  const h = screenResH.value
   if (!d || !w || !h || d <= 0 || w <= 0 || h <= 0) return null
   const ppi = Math.sqrt(w * w + h * h) / d
   return Math.round(beadSizeMM.value / 25.4 * ppi)
