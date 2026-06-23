@@ -178,6 +178,8 @@
     </Teleport>
 
     <footer class="text-center py-3 text-xs text-gray-400 border-t border-gray-200 bg-white">🧩 拼豆图案生成器 &copy; {{ new Date().getFullYear() }}</footer>
+
+    <NotifyLayer />
   </div>
 </template>
 
@@ -185,8 +187,10 @@
 import { ref } from 'vue'
 import ImageUploader from '@/components/ImageUploader.vue'
 import BeadGrid from '@/components/BeadGrid.vue'
+import NotifyLayer from '@/components/NotifyLayer.vue'
 import { processImage } from '@/utils/imageProcessor'
 import { saveHistory, getHistoryList, getHistoryRecord, clearHistory, toggleFavorite, exportRecords, importRecords, type HistoryMeta } from '@/utils/history'
+import { showToast, showConfirm } from '@/composables/useNotify'
 import type { ProcessResult, RawPixel, ColorStrategyId } from '@/types'
 import type { BeadColor } from '@/types'
 import { useColorStrategy } from '@/composables/useColorStrategy'
@@ -316,10 +320,10 @@ async function onImportFile(e: Event) {
   if (!file) return
   try {
     const count = await importRecords(file)
-    alert(`成功导入 ${count} 条记录`)
+    showToast(`成功导入 ${count} 条记录`, 'success')
     await openHistory()
   } catch (err: any) {
-    alert('导入失败: ' + (err.message || '未知错误'))
+    showToast('导入失败: ' + (err.message || '未知错误'), 'error')
   }
   input.value = ''
 }
@@ -347,12 +351,15 @@ async function clearAllHistory() {
   const favCount = historyList.value.filter(h => h.favorite).length
   let msg = '确定要清除非收藏的历史记录吗？'
   if (favCount > 0) {
-    msg += `\n\n⚠️ ${favCount} 条收藏记录将保留。\n注意：数据仅存储在本地浏览器中，\n清除浏览器数据将无法恢复！`
+    msg += '\n\n⚠️ ' + favCount + ' 条收藏记录将保留\n注意：数据仅存储在本地浏览器中\n清除浏览器数据将无法恢复！'
   }
-  if (!confirm(msg)) return
+  const ok = await showConfirm({ text: msg, type: 'danger' })
+  if (!ok) return
   const result = await clearHistory()
   if (favCount > 0) {
-    alert(`已清空 ${result.deleted} 条记录，保留 ${result.kept} 条收藏`)
+    showToast(`已清空 ${result.deleted} 条记录，保留 ${result.kept} 条收藏`, 'success')
+  } else {
+    showToast(`已清空 ${result.deleted} 条记录`, 'success')
   }
   await openHistory()
 }
