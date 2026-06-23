@@ -49,7 +49,7 @@ export function useBeadGrid(
 ) {
   const _cols = isRef(sourceCols) ? sourceCols : ref(sourceCols)
   const _rows = isRef(sourceRows) ? sourceRows : ref(sourceRows)
-  // ========== 全量数据 ==========
+  // ========== 全量数据（保持原始匹配结果，不做碎片合并） ==========
   const allBeads = ref<PixelInfo[]>([])
 
   watch(rawPixels, (raw) => {
@@ -59,8 +59,6 @@ export function useBeadGrid(
       y: p.y,
       color: findClosestBeadColor(p.r, p.g, p.b, sid),
     }))
-    // 合并碎片颜色（低于 0.5% 的合并到相近色）
-    mergeFragmentedColors(allBeads.value, 0.005, sid)
   }, { immediate: true })
 
   // 策略切换时重新匹配（保留拼豆宽度、尺寸等所有显示参数）
@@ -71,7 +69,6 @@ export function useBeadGrid(
       y: p.y,
       color: findClosestBeadColor(p.r, p.g, p.b, sid),
     }))
-    mergeFragmentedColors(allBeads.value, 0.005, sid)
     // 颜色变化后清除选中和编辑状态
     selectedIndices.value = new Set()
     editingIndex.value = null
@@ -145,24 +142,24 @@ export function useBeadGrid(
   })
 
   /**
-   * 当前展示的拼豆列表（已降采样，按 displayY/displayX 排序保证行优先）
+   * 当前展示的拼豆列表（已降采样 + 碎片颜色合并，按 displayY/displayX 排序）
    */
   const displayBeads = computed<DisplayBead[]>(() => {
     const s = step.value
     const result: DisplayBead[] = []
     allBeads.value.forEach((p, i) => {
       if (p.x % s === 0 && p.y % s === 0) {
-        const bead: DisplayBead = {
-          x: p.x, y: p.y, color: p.color,
+        result.push({
+          x: p.x, y: p.y, color: { ...p.color },
           origIdx: i,
           displayX: Math.floor(p.x / s),
           displayY: Math.floor(p.y / s),
-        }
-        result.push(bead)
+        })
       }
     })
-    // 按行优先排序，确保 flex-wrap 布局正确
     result.sort((a, b) => a.displayY - b.displayY || a.displayX - b.displayX)
+    // 仅对展示数据做碎片颜色合并，不影响原始匹配结果
+    mergeFragmentedColors(result, 0.005, strategyId.value)
     return result
   })
 
