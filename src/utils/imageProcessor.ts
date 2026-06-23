@@ -1,4 +1,4 @@
-import type { RawPixel, PixelInfo } from '@/types'
+import type { RawPixel, PixelInfo, ColorStrategyId } from '@/types'
 import { findClosestBeadColor } from './colors'
 
 /**
@@ -6,11 +6,13 @@ import { findClosestBeadColor } from './colors'
  * @param blob    图片数据（裁剪后的 blob 或原始文件）
  * @param maxWidth  目标拼豆宽度（≤256）
  * @param bgColor   透明区域填充色（默认白色）
+ * @param strategyId  颜色匹配策略ID
  */
 export async function processImage(
   blob: Blob,
   maxWidth: number = 256,
   bgColor: string = '#FFFFFF',
+  strategyId?: ColorStrategyId,
 ): Promise<{
   pixels: (RawPixel & { beadColor: PixelInfo['color'] })[]
   /** 哪些索引在原始图片中是透明的 */
@@ -57,7 +59,7 @@ export async function processImage(
         r: imageData.data[idx],
         g: imageData.data[idx + 1],
         b: imageData.data[idx + 2],
-        beadColor: findClosestBeadColor(imageData.data[idx], imageData.data[idx + 1], imageData.data[idx + 2]),
+        beadColor: findClosestBeadColor(imageData.data[idx], imageData.data[idx + 1], imageData.data[idx + 2], strategyId),
       })
     }
   }

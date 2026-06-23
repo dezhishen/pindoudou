@@ -1,6 +1,7 @@
 import { ref, computed, watch, type Ref } from 'vue'
-import type { PixelInfo, BeadColor, RawPixel } from '@/types'
+import type { PixelInfo, BeadColor, RawPixel, ColorStrategyId } from '@/types'
 import { allBeadColors, findClosestBeadColor, computeColorInfo, mergeFragmentedColors } from '@/utils/colors'
+import { defaultStrategyId } from '@/utils/colorStrategies'
 
 /**
  * 网格交互状态
@@ -38,20 +39,38 @@ export interface BeadStats {
  * @param rawPixels   后端返回的原始像素数据
  * @param sourceCols  原始像素列数（props.cols）
  * @param sourceRows  原始像素行数（props.rows）
+ * @param strategyId  颜色匹配策略ID（响应式）
  */
-export function useBeadGrid(rawPixels: Ref<RawPixel[]>, sourceCols: number, sourceRows: number) {
+export function useBeadGrid(
+  rawPixels: Ref<RawPixel[]>,
+  sourceCols: number,
+  sourceRows: number,
+  strategyId: Ref<ColorStrategyId> = ref(defaultStrategyId),
+) {
   // ========== 全量数据 ==========
   const allBeads = ref<PixelInfo[]>([])
 
   watch(rawPixels, (raw) => {
+    const sid = strategyId.value
     allBeads.value = raw.map(p => ({
       x: p.x,
       y: p.y,
-      color: findClosestBeadColor(p.r, p.g, p.b),
+      color: findClosestBeadColor(p.r, p.g, p.b, sid),
     }))
     // 合并碎片颜色（低于 0.5% 的合并到相近色）
-    mergeFragmentedColors(allBeads.value, 0.005)
+    mergeFragmentedColors(allBeads.value, 0.005, sid)
   }, { immediate: true })
+
+  // 策略切换时重新匹配
+  watch(strategyId, (sid) => {
+    if (!rawPixels.value.length) return
+    allBeads.value = rawPixels.value.map(p => ({
+      x: p.x,
+      y: p.y,
+      color: findClosestBeadColor(p.r, p.g, p.b, sid),
+    }))
+    mergeFragmentedColors(allBeads.value, 0.005, sid)
+  })
 
   // ========== 精度/采样 ==========
   const BEAD_SIZE = 8

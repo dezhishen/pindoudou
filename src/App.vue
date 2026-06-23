@@ -30,6 +30,24 @@
               <img :src="imagePreviewUrl" alt="原图" class="max-w-full h-auto block" />
             </div>
           </div>
+          <!-- 颜色匹配策略 -->
+          <div class="card">
+            <h3 class="text-sm font-medium mb-2">🎯 颜色匹配策略</h3>
+            <div class="flex flex-col gap-1">
+              <label v-for="s in strategies" :key="s.id"
+                class="flex items-center gap-2 px-2.5 py-2 rounded-lg cursor-pointer transition text-xs"
+                :class="currentId === s.id ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-100 hover:bg-gray-100'"
+              >
+                <input type="radio" :value="s.id" :checked="currentId === s.id"
+                  class="accent-primary"
+                  @change="currentId === s.id || setStrategy(s.id)" />
+                <div class="flex flex-col min-w-0">
+                  <span class="font-medium">{{ s.name }}</span>
+                  <span class="text-[10px] text-gray-400 leading-tight">{{ s.description }}</span>
+                </div>
+              </label>
+            </div>
+          </div>
           <!-- 透明填充 -->
           <div v-if="transparentIndices.length > 0" class="card">
             <div class="flex items-center justify-between mb-2">
@@ -76,7 +94,7 @@
         </div>
         <div class="min-w-0">
           <div class="bg-white rounded-2xl shadow-sm p-2">
-            <BeadGrid ref="gridRef" :pixels="result.pixels" :cols="result.width" :rows="result.height" @update-info="onGridInfo" />
+            <BeadGrid ref="gridRef" :pixels="result.pixels" :cols="result.width" :rows="result.height" :strategy-id="currentId" @update-info="onGridInfo" />
           </div>
         </div>
       </div>
@@ -91,8 +109,9 @@ import { ref } from 'vue'
 import ImageUploader from '@/components/ImageUploader.vue'
 import BeadGrid from '@/components/BeadGrid.vue'
 import { processImage } from '@/utils/imageProcessor'
-import type { ProcessResult, RawPixel } from '@/types'
+import type { ProcessResult, RawPixel, ColorStrategyId } from '@/types'
 import type { BeadColor } from '@/types'
+import { useColorStrategy } from '@/composables/useColorStrategy'
 
 type Step = 'upload' | 'result'
 const step = ref<Step>('upload')
@@ -105,6 +124,9 @@ const drawerOpen = ref(false)
 const gridRef = ref<InstanceType<typeof BeadGrid>>()
 const colorInfo = ref<{ color: BeadColor; count: number }[]>([])
 
+// 颜色匹配策略
+const { currentId, strategies, setStrategy } = useColorStrategy()
+
 // 透明填充
 const transparentIndices = ref<number[]>([])
 const fillColor = ref('#FFFFFF')
@@ -114,7 +136,7 @@ async function handleFile(file: File) {
   imagePreviewUrl.value = URL.createObjectURL(file)
   loading.value = true; loadingText.value = '正在解析图片...'; error.value = ''
   try {
-    const data = await processImage(file, 256, fillColor.value)
+    const data = await processImage(file, 256, fillColor.value, currentId.value)
     result.value = {
       width: data.width, height: data.height,
       originalWidth: data.originalWidth, originalHeight: data.originalHeight,

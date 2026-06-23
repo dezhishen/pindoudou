@@ -26,52 +26,130 @@
       <div class="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
         <button
           class="px-4 py-1.5 text-xs font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
-          :class="beadSizeMM === 5
-            ? 'bg-primary text-white'
-            : 'text-gray-600 hover:bg-gray-100'"
-          @click="beadSizeMM = 5">
-          5mm 大号
-        </button>
+          :class="beadSizeMM === 5 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+          @click="beadSizeMM = 5">5mm 大号</button>
         <button
           class="px-4 py-1.5 text-xs font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
-          :class="beadSizeMM === 2.6
-            ? 'bg-primary text-white'
-            : 'text-gray-600 hover:bg-gray-100'"
-          @click="beadSizeMM = 2.6">
-          2.6mm 小号
-        </button>
+          :class="beadSizeMM === 2.6 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+          @click="beadSizeMM = 2.6">2.6mm 小号</button>
       </div>
-      <span class="text-xs font-semibold text-primary whitespace-nowrap">
-        ≈ {{ physicalSize.label }}
-      </span>
-      <span v-if="beadSizeMM === 5" class="text-[10px] text-gray-400">
-        （小号≈{{ Math.round(displayCols * 2.6 / 10) }}×{{ Math.round(displayRows * 2.6 / 10) }}cm）
-      </span>
-      <span v-else class="text-[10px] text-gray-400">
-        （大号≈{{ Math.round(displayCols * 5 / 10) }}×{{ Math.round(displayRows * 5 / 10) }}cm）
-      </span>
+      <span class="text-xs font-semibold text-primary whitespace-nowrap">≈ {{ physicalSize.label }}</span>
+      <span v-if="beadSizeMM === 5" class="text-[10px] text-gray-400">（小号≈{{ Math.round(displayCols * 2.6 / 10) }}×{{ Math.round(displayRows * 2.6 / 10) }}cm）</span>
+      <span v-else class="text-[10px] text-gray-400">（大号≈{{ Math.round(displayCols * 5 / 10) }}×{{ Math.round(displayRows * 5 / 10) }}cm）</span>
     </div>
 
-    <!-- 拼豆宽度 -->
-    <div class="flex items-center gap-1.5 flex-wrap">
-      <span class="text-xs text-gray-500">拼豆宽度</span>
-      <div class="flex gap-1 flex-wrap">
-        <button v-for="c in beadCountPresets" :key="c"
-          class="px-2.5 py-1 rounded-md border text-xs font-medium transition cursor-pointer"
-          :class="displayCols === c
-            ? 'bg-primary text-white border-primary'
-            : 'bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary'"
-          @click="c !== displayCols && setBeadCount(c)">
-          {{ c }}
-        </button>
+    <!-- 拼豆宽度 + 展示模式 -->
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs text-gray-500">拼豆宽度</span>
+        <div class="flex gap-1 flex-wrap">
+          <button v-for="c in beadCountPresets" :key="c"
+            class="px-2.5 py-1 rounded-md border text-xs font-medium transition cursor-pointer"
+            :class="displayCols === c ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary'"
+            @click="c !== displayCols && setBeadCount(c)">{{ c }}</button>
+        </div>
+        <span class="text-xs text-gray-400">颗</span>
       </div>
-      <span class="text-xs text-gray-400">颗</span>
+
+      <!-- 展示模式切换 -->
+      <!-- 单元格缩放 -->
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs text-gray-500 whitespace-nowrap">单元格</span>
+        <div class="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <button
+            class="px-2 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
+            :class="cellSize === 6 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            @click="cellSize = 6">小</button>
+          <button
+            class="px-2 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
+            :class="cellSize === 8 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            @click="cellSize = 8">中</button>
+          <button
+            class="px-2 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
+            :class="cellSize === 12 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            @click="cellSize = 12">大</button>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs text-gray-500 whitespace-nowrap">展示</span>
+        <div class="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <button
+            class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
+            :class="displayMode === 'color' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            @click="displayMode = 'color'"
+            title="仅显示拼豆颜色">
+            🎨 颜色
+          </button>
+          <button
+            class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
+            :class="displayMode === 'both' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            @click="displayMode = 'both'"
+            title="颜色网格 + 坐标标尺">
+            📐 标尺
+          </button>
+          <button
+            class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
+            :class="displayMode === 'coords' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            @click="displayMode = 'coords'"
+            title="单元格显示坐标数字">
+            🔢 坐标格
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- 网格 -->
-    <div class="grid-scroll">
-      <div ref="gridRef" class="bead-grid" :style="{ gridTemplateColumns: `repeat(${displayCols}, ${BEAD_SIZE}px)`, gridTemplateRows: `repeat(${displayRows}, ${BEAD_SIZE}px)` }" @click.self="clearSelection">
-        <div v-for="b in displayBeads" :key="b.origIdx" class="bead-cell" :class="{ 'selected': selectedIndices.has(b.origIdx), 'same-color': sameColorIndices.has(b.origIdx) && selectedIndices.size > 0 }" :style="{ width: BEAD_SIZE+'px', height: BEAD_SIZE+'px', background: b.color.hex }" :data-color="b.color.code" @click.stop="toggleSelect(b.origIdx, $event.shiftKey)" @contextmenu.prevent="startEdit(b.origIdx)" />
+    <!-- ============ 模式「颜色」：纯拼豆网格 ============ -->
+    <div v-if="displayMode === 'color'" class="grid-scroll">
+      <div ref="gridRef" class="bead-grid" :style="gridStyle" @click.self="clearSelection">
+        <div v-for="b in displayBeads" :key="b.origIdx"
+          class="bead-cell"
+          :class="cellClass(b.origIdx)"
+          :style="{ ...beadCellStyle, background: b.color.hex }"
+          :data-color="b.color.code"
+          @click.stop="toggleSelect(b.origIdx, $event.shiftKey)"
+          @contextmenu.prevent="startEdit(b.origIdx)" />
+      </div>
+    </div>
+
+    <!-- ============ 模式「标尺」：颜色网格 + 行列坐标标尺 ============ -->
+    <div v-else-if="displayMode === 'both'" class="grid-scroll">
+      <div class="ruler-grid" :style="rulerGridStyle">
+        <!-- 左上角占位 -->
+        <div class="ruler-corner" :style="cornerStyle" />
+        <!-- 列标尺 (x坐标) -->
+        <div v-for="x in displayCols" :key="'cx'+x"
+          class="ruler-cell ruler-col"
+          :style="rulerCellStyle">
+          {{ x - 1 }}
+        </div>
+        <!-- 行标尺 + 拼豆网格（同一grid中） -->
+        <template v-for="y in displayRows" :key="'row'+y">
+          <!-- 行标尺 (y坐标) -->
+          <div class="ruler-cell ruler-row" :style="rulerCellStyle">{{ y - 1 }}</div>
+          <!-- 该行的拼豆 -->
+          <div v-for="b in rowBeads(y - 1)" :key="b.origIdx"
+            class="bead-cell"
+            :class="cellClass(b.origIdx)"
+            :style="{ ...beadCellStyle, background: b.color.hex }"
+            :data-color="b.color.code"
+            @click.stop="toggleSelect(b.origIdx, $event.shiftKey)"
+            @contextmenu.prevent="startEdit(b.origIdx)" />
+        </template>
+      </div>
+    </div>
+
+    <!-- ============ 模式「坐标格」：单元格显示坐标 ============ -->
+    <div v-else class="grid-scroll">
+      <div class="coord-grid" :style="coordGridStyle" @click.self="clearSelection">
+        <div v-for="b in displayBeads" :key="b.origIdx"
+          class="coord-cell"
+          :class="cellClass(b.origIdx)"
+          :style="{ width: coordCellSize+'px', height: coordCellSize+'px', background: b.color.hex }"
+          @click.stop="toggleSelect(b.origIdx, $event.shiftKey)"
+          @contextmenu.prevent="startEdit(b.origIdx)">
+          <span class="coord-text" :style="coordTextStyle">{{ b.displayX }},{{ b.displayY }}</span>
+        </div>
       </div>
     </div>
 
@@ -91,17 +169,93 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import type { RawPixel } from '@/types'
+import { ref, watch, computed } from 'vue'
+import type { RawPixel, ColorStrategyId } from '@/types'
 import { allBeadColors } from '@/utils/colors'
 import { useBeadGrid } from '@/composables/useBeadGrid'
+import type { DisplayBead } from '@/composables/useBeadGrid'
+import { defaultStrategyId } from '@/utils/colorStrategies'
 
-const props = defineProps<{ pixels: RawPixel[]; cols: number; rows: number }>()
+const props = defineProps<{
+  pixels: RawPixel[]
+  cols: number
+  rows: number
+  strategyId?: ColorStrategyId
+}>()
 const emit = defineEmits<{ (e: 'update-info', info: { colorInfo: { color: import('@/types').BeadColor; count: number }[] }): void }>()
 const pixelRef = ref<RawPixel[]>([])
-watch(() => props.pixels, (v) => { pixelRef.value = v }, { immediate: true })
+const strategyRef = ref<ColorStrategyId>(props.strategyId ?? defaultStrategyId)
 
-const { step, maxStep, BEAD_SIZE, beadCountPresets, setBeadCount, displayCols, displayRows, displayBeads, selectedIndices, editingIndex, sameColorIndices, toggleSelect, clearSelection, startEdit, getCellColor, applyColor, stats, downloadPNG, selectByColor, beadSizeMM, physicalSize } = useBeadGrid(pixelRef, props.cols, props.rows)
+watch(() => props.pixels, (v) => { pixelRef.value = v }, { immediate: true })
+watch(() => props.strategyId, (v) => { if (v) strategyRef.value = v })
+
+const {
+  step, maxStep, BEAD_SIZE, beadCountPresets, setBeadCount,
+  displayCols, displayRows, displayBeads,
+  selectedIndices, editingIndex, sameColorIndices,
+  toggleSelect, clearSelection, startEdit, getCellColor, applyColor,
+  stats, downloadPNG, selectByColor,
+  beadSizeMM, physicalSize,
+} = useBeadGrid(pixelRef, props.cols, props.rows, strategyRef)
+
+// ========== 展示模式 ==========
+type DisplayMode = 'color' | 'both' | 'coords'
+const displayMode = ref<DisplayMode>('color')
+
+// ========== 单元格缩放 ==========
+const cellSize = ref(8)  // 小6 / 中8 / 大12
+
+/** 坐标格模式下单元格尺寸（约为颜色模式的2.75倍以便显示文字） */
+const coordCellSize = computed(() => Math.round(cellSize.value * 2.75))
+
+// ========== 网格样式 ==========
+const gridStyle = computed(() => ({
+  gridTemplateColumns: `repeat(${displayCols.value}, ${cellSize.value}px)`,
+  gridTemplateRows: `repeat(${displayRows.value}, ${cellSize.value}px)`,
+}))
+
+/** 标尺模式网格（多一行列头 + 多一列行头） */
+const rulerGridStyle = computed(() => ({
+  gridTemplateColumns: `${cellSize.value}px repeat(${displayCols.value}, ${cellSize.value}px)`,
+  gridTemplateRows: `${cellSize.value}px repeat(${displayRows.value}, ${cellSize.value}px)`,
+}))
+
+/** 坐标格模式网格 */
+const coordGridStyle = computed(() => ({
+  gridTemplateColumns: `repeat(${displayCols.value}, ${coordCellSize.value}px)`,
+  gridTemplateRows: `repeat(${displayRows.value}, ${coordCellSize.value}px)`,
+}))
+
+const cornerStyle = computed(() => ({ width: cellSize.value+'px', height: cellSize.value+'px' }))
+const rulerCellStyle = computed(() => ({ width: cellSize.value+'px', height: cellSize.value+'px' }))
+const beadCellStyle = computed(() => ({ width: cellSize.value+'px', height: cellSize.value+'px' }))
+
+const coordTextStyle = computed(() => ({
+  fontSize: Math.max(5, Math.round(cellSize.value * 0.75)) + 'px',
+}))
+
+// ========== 单元格样式 ==========
+function cellClass(idx: number) {
+  return {
+    'selected': selectedIndices.value.has(idx),
+    'same-color': sameColorIndices.value.has(idx) && selectedIndices.value.size > 0,
+  }
+}
+
+// ========== 标尺模式：按行分组 ==========
+const beadsByRow = computed(() => {
+  const map = new Map<number, DisplayBead[]>()
+  for (const b of displayBeads.value) {
+    const row = map.get(b.displayY) || []
+    row.push(b)
+    map.set(b.displayY, row)
+  }
+  return map
+})
+
+function rowBeads(y: number): DisplayBead[] {
+  return beadsByRow.value.get(y) || []
+}
 
 watch(() => stats.value, (s) => { emit('update-info', { colorInfo: s.colorInfo }) }, { deep: true, immediate: true })
 defineExpose({ downloadPNG, selectByColor })
@@ -109,9 +263,31 @@ defineExpose({ downloadPNG, selectByColor })
 
 <style scoped>
 .grid-scroll { overflow: auto; max-width: 100%; max-height: calc(100vh - 220px); border: 0.5px solid #e5e7eb; border-radius: 4px; }
+
+/* 纯颜色模式 */
 .bead-grid { display: grid; cursor: crosshair; width: fit-content; background: #fff; }
+
+/* 标尺模式 */
+.ruler-grid { display: grid; cursor: crosshair; width: fit-content; background: #fff; }
+.ruler-corner { background: #f3f4f6; border: 0.5px solid #d1d5db; box-sizing: border-box; position: sticky; top: 0; left: 0; z-index: 5; }
+.ruler-cell { display: flex; align-items: center; justify-content: center; background: #f3f4f6; border: 0.5px solid #d1d5db; box-sizing: border-box; font-size: 6px; color: #6b7280; font-family: monospace; line-height: 1; user-select: none; }
+.ruler-col { position: sticky; top: 0; z-index: 4; }
+.ruler-row { position: sticky; left: 0; z-index: 4; }
+
+/* 坐标格模式 */
+.coord-grid { display: grid; cursor: crosshair; width: fit-content; background: #fff; }
+
+/* 通用单元格 */
 .bead-cell { flex-shrink: 0; border: 0.5px solid rgba(0,0,0,0.08); box-sizing: border-box; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; position: relative; }
 .bead-cell:hover { transform: scale(1.15); z-index: 2; box-shadow: 0 0 6px rgba(0,0,0,0.3); }
 .bead-cell.selected { outline: 2px solid #ff4444; outline-offset: -1px; z-index: 3; }
 .bead-cell.same-color { outline: 2px dashed #ffaa00; outline-offset: -1px; z-index: 1; }
+
+/* 坐标格单元格 */
+.coord-cell { flex-shrink: 0; border: 0.5px solid rgba(0,0,0,0.15); box-sizing: border-box; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.coord-cell:hover { transform: scale(1.15); z-index: 2; box-shadow: 0 0 6px rgba(0,0,0,0.3); }
+.coord-cell.selected { outline: 2px solid #ff4444; outline-offset: -1px; z-index: 3; }
+.coord-cell.same-color { outline: 2px dashed #ffaa00; outline-offset: -1px; z-index: 1; }
+
+.coord-text { font-family: monospace; color: #fff; text-shadow: 0 0 1px #000, 0 0 2px #000; line-height: 1; pointer-events: none; text-align: center; white-space: nowrap; }
 </style>

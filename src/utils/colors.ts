@@ -1,4 +1,6 @@
-import type { BeadColor, RawPixel, PixelInfo } from '@/types'
+import type { BeadColor, RawPixel, PixelInfo, ColorMatchFn } from '@/types'
+import { getMatchFn, defaultStrategyId } from './colorStrategies'
+import type { ColorStrategyId } from '@/types'
 
 // 标准拼豆颜色调色板（与后端 colors.go 一致）
 export const allBeadColors: BeadColor[] = [
@@ -41,24 +43,37 @@ export const allBeadColors: BeadColor[] = [
   { name: '桃色', code: 'PEACH', r: 255, g: 218, b: 185, hex: '#FFDAB9' },
 ]
 
-/** 欧几里得距离找到最接近的拼豆颜色 */
-export function findClosestBeadColor(r: number, g: number, b: number): BeadColor {
-  let closest = allBeadColors[0]
-  let minDist = Infinity
-  for (const c of allBeadColors) {
-    const dr = r - c.r, dg = g - c.g, db = b - c.b
-    const dist = dr * dr + dg * dg + db * db
-    if (dist < minDist) { minDist = dist; closest = c }
-  }
-  return closest
+/**
+ * 找到最接近的拼豆颜色（使用指定策略）
+ * @param strategyId  策略ID，默认使用 'lab-euclidean'
+ */
+export function findClosestBeadColor(
+  r: number, g: number, b: number,
+  strategyId: ColorStrategyId = defaultStrategyId,
+): BeadColor {
+  return getMatchFn(strategyId)(r, g, b, allBeadColors)
+}
+
+/**
+ * 找到最接近的拼豆颜色（直接传入匹配函数，避免查表开销）
+ */
+export function findClosestBeadColorWith(
+  r: number, g: number, b: number,
+  matchFn: ColorMatchFn,
+): BeadColor {
+  return matchFn(r, g, b, allBeadColors)
 }
 
 /** 将原始像素数组转换为拼豆颜色像素数组 */
-export function rawPixelsToBeadPixels(raw: RawPixel[]): PixelInfo[] {
+export function rawPixelsToBeadPixels(
+  raw: RawPixel[],
+  strategyId: ColorStrategyId = defaultStrategyId,
+): PixelInfo[] {
+  const matchFn = getMatchFn(strategyId)
   return raw.map(p => ({
     x: p.x,
     y: p.y,
-    color: findClosestBeadColor(p.r, p.g, p.b),
+    color: matchFn(p.r, p.g, p.b, allBeadColors),
   }))
 }
 
@@ -80,8 +95,13 @@ export function computeColorInfo(pixels: PixelInfo[]): { color: BeadColor; count
  * 合并碎片颜色：将用量少于 threshold 的颜色合并到最近的颜色
  * @param pixels  像素数组（会被原地修改）
  * @param threshold  低于此比例的碎片颜色被合并（0~1）
+ * @param strategyId  颜色匹配策略
  */
-export function mergeFragmentedColors(pixels: PixelInfo[], threshold = 0.01): void {
+export function mergeFragmentedColors(
+  pixels: PixelInfo[],
+  threshold = 0.01,
+  strategyId: ColorStrategyId = defaultStrategyId,
+): void {
   const total = pixels.length
   const info = computeColorInfo(pixels)
   const rare = info.filter(c => c.count / total < threshold)
@@ -96,9 +116,11 @@ export function mergeFragmentedColors(pixels: PixelInfo[], threshold = 0.01): vo
     keepColors.push(info[0].color)
   }
 
+  const matchFn = getMatchFn(strategyId)
+
   for (const p of pixels) {
     if (rareCodes.has(p.color.code)) {
-      // 找最近的保留色
+      // 找最近的保留色（使用指定策略）
       let nearest = keepColors[0]
       let minDist = Infinity
       for (const c of keepColors) {
