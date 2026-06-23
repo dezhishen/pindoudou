@@ -89,7 +89,7 @@
           <div class="card flex flex-col gap-2">
             <!-- 下载按钮：默认PNG，下拉可选SVG -->
             <div class="relative flex">
-              <button class="btn btn-primary flex-1 rounded-r-none" @click="downloadGrid">
+              <button class="btn btn-primary flex-1 rounded-r-none justify-center" @click="downloadGrid">
                 📥 下载 PNG
               </button>
               <button class="btn btn-primary rounded-l-none border-l border-white/30 px-2.5" @click="showDownloadMenu = !showDownloadMenu">
