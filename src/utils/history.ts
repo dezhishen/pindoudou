@@ -1,16 +1,18 @@
 /**
  * 拼豆历史记录 - IndexedDB 存储
- * 本地保留最近 10 条记录，包含原图和解析结果
+ * 本地保留最近 10 条记录（收藏的除外），包含原图和解析结果
+ * 支持收藏、批量导出/导入
  */
 
 const DB_NAME = 'pindoudou-history'
-const DB_VERSION = 1
+const DB_VERSION = 2
 const STORE_NAME = 'records'
 const MAX_RECORDS = 10
 
 export interface HistoryRecord {
   id: number
   timestamp: number
+  favorite: boolean
   /** 原图 base64 data URL（用于预览缩略图） */
   thumbnail: string
   /** 原图文件名 */
@@ -36,6 +38,7 @@ export interface HistoryRecord {
 export interface HistoryMeta {
   id: number
   timestamp: number
+  favorite: boolean
   thumbnail: string
   fileName: string
   originalWidth: number
@@ -44,13 +47,46 @@ export interface HistoryMeta {
   height: number
 }
 
+/** 导出用的精简格式 */
+export interface HistoryExportItem {
+  timestamp: number
+  favorite: boolean
+  thumbnail: string
+  fileName: string
+  originalWidth: number
+  originalHeight: number
+  width: number
+  height: number
+  pixelsJson: string
+  transparentIndicesJson: string
+  strategyId: string
+  fillColor: string
+}
+
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION)
-    req.onupgradeneeded = () => {
+    req.onupgradeneeded = (e) => {
       const db = req.result
+      const oldVersion = (e as IDBVersionChangeEvent).oldVersion
       if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'id' })
+        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' })
+        store.createIndex('favorite', 'favorite', { unique: false })
+      } else if (oldVersion < 2) {
+        // 升级到 v2：给已有记录加 favorite 字段
+        const tx = (e.target as IDBOpenDBRequest).transaction!
+        const store = tx.objectStore(STORE_NAME)
+        store.openCursor().onsuccess = (ev) => {
+          const cursor = (ev.target as IDBRequest<IDBCursorWithValue>).result
+          if (cursor) {
+            const record = cursor.value
+            if (record.favorite === undefined) {
+              record.favorite = false
+              cursor.update(record)
+            }
+            cursor.continue()
+          }
+        }
       }
     }
     req.onsuccess = () => resolve(req.result)
@@ -58,13 +94,12 @@ function openDB(): Promise<IDBDatabase> {
   })
 }
 
-/** 保存一条历史记录，自动修剪超过上限的旧记录 */
-export async function saveHistory(record: Omit<HistoryRecord, 'id' | 'timestamp'>): Promise<void> {
+/** 保存一条历史记录，自动修剪超过上限的旧记录（不删除收藏的） */
+export async function saveHistory(record: Omit<HistoryRecord, 'id' | 'timestamp' | 'favorite'>): Promise<void> {
   const db = await openDB()
   const tx = db.transaction(STORE_NAME, 'readwrite')
   const store = tx.objectStore(STORE_NAME)
 
-  // 获取当前最大 id
   const all = await new Promise<HistoryRecord[]>((resolve, reject) => {
     const req = store.getAll()
     req.onsuccess = () => resolve(req.result)
@@ -76,16 +111,15 @@ export async function saveHistory(record: Omit<HistoryRecord, 'id' | 'timestamp'
     ...record,
     id: newId,
     timestamp: Date.now(),
+    favorite: false,
   }
   store.put(entry)
 
-  // 删除超出上限的旧记录
-  if (all.length >= MAX_RECORDS) {
-    const sorted = [...all, entry].sort((a, b) => b.timestamp - a.timestamp)
-    const toDelete = sorted.slice(MAX_RECORDS)
-    for (const r of toDelete) {
-      store.delete(r.id)
-    }
+  // 仅删除非收藏的旧记录
+  const nonFav = [...all, entry].filter(r => !r.favorite).sort((a, b) => b.timestamp - a.timestamp)
+  const toDelete = nonFav.slice(MAX_RECORDS)
+  for (const r of toDelete) {
+    store.delete(r.id)
   }
 
   return new Promise((resolve, reject) => {
@@ -94,7 +128,27 @@ export async function saveHistory(record: Omit<HistoryRecord, 'id' | 'timestamp'
   })
 }
 
-/** 获取所有历史记录元数据（按时间倒序，不含完整数据） */
+/** 切换收藏状态 */
+export async function toggleFavorite(id: number): Promise<boolean> {
+  const db = await openDB()
+  const tx = db.transaction(STORE_NAME, 'readwrite')
+  const store = tx.objectStore(STORE_NAME)
+  const record = await new Promise<HistoryRecord | undefined>((resolve, reject) => {
+    const req = store.get(id)
+    req.onsuccess = () => resolve(req.result)
+    req.onerror = () => reject(req.error)
+  })
+  if (!record) return false
+  record.favorite = !record.favorite
+  store.put(record)
+  await new Promise<void>((resolve, reject) => {
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+  })
+  return record.favorite
+}
+
+/** 获取所有历史记录元数据（按时间倒序，收藏优先） */
 export async function getHistoryList(): Promise<HistoryMeta[]> {
   const db = await openDB()
   const tx = db.transaction(STORE_NAME, 'readonly')
@@ -105,16 +159,15 @@ export async function getHistoryList(): Promise<HistoryMeta[]> {
     req.onerror = () => reject(req.error)
   })
   return all
-    .sort((a, b) => b.timestamp - a.timestamp)
+    .sort((a, b) => {
+      if (a.favorite !== b.favorite) return a.favorite ? -1 : 1
+      return b.timestamp - a.timestamp
+    })
     .map(r => ({
-      id: r.id,
-      timestamp: r.timestamp,
-      thumbnail: r.thumbnail,
-      fileName: r.fileName,
-      originalWidth: r.originalWidth,
-      originalHeight: r.originalHeight,
-      width: r.width,
-      height: r.height,
+      id: r.id, timestamp: r.timestamp, favorite: r.favorite,
+      thumbnail: r.thumbnail, fileName: r.fileName,
+      originalWidth: r.originalWidth, originalHeight: r.originalHeight,
+      width: r.width, height: r.height,
     }))
 }
 
@@ -130,14 +183,94 @@ export async function getHistoryRecord(id: number): Promise<HistoryRecord | unde
   })
 }
 
-/** 删除所有历史记录 */
-export async function clearHistory(): Promise<void> {
+/** 删除指定记录 */
+export async function deleteRecords(ids: number[]): Promise<void> {
   const db = await openDB()
   const tx = db.transaction(STORE_NAME, 'readwrite')
   const store = tx.objectStore(STORE_NAME)
-  store.clear()
+  for (const id of ids) store.delete(id)
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve()
     tx.onerror = () => reject(tx.error)
   })
+}
+
+/** 删除所有非收藏历史记录，返回被删除的数量 */
+export async function clearHistory(): Promise<{ deleted: number; kept: number }> {
+  const db = await openDB()
+  const tx = db.transaction(STORE_NAME, 'readwrite')
+  const store = tx.objectStore(STORE_NAME)
+  const all = await new Promise<HistoryRecord[]>((resolve, reject) => {
+    const req = store.getAll()
+    req.onsuccess = () => resolve(req.result)
+    req.onerror = () => reject(req.error)
+  })
+  const toDelete = all.filter(r => !r.favorite)
+  for (const r of toDelete) store.delete(r.id)
+  await new Promise<void>((resolve, reject) => {
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+  })
+  return { deleted: toDelete.length, kept: all.length - toDelete.length }
+}
+
+/** 导出选中记录为 JSON 文件 */
+export async function exportRecords(ids: number[]): Promise<void> {
+  const items: HistoryExportItem[] = []
+  for (const id of ids) {
+    const r = await getHistoryRecord(id)
+    if (r) {
+      items.push({
+        timestamp: r.timestamp, favorite: r.favorite,
+        thumbnail: r.thumbnail, fileName: r.fileName,
+        originalWidth: r.originalWidth, originalHeight: r.originalHeight,
+        width: r.width, height: r.height,
+        pixelsJson: r.pixelsJson,
+        transparentIndicesJson: r.transparentIndicesJson,
+        strategyId: r.strategyId, fillColor: r.fillColor,
+      })
+    }
+  }
+  const blob = new Blob([JSON.stringify({ version: 2, items })], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.download = `pindoudou-favorites-${Date.now()}.json`
+  link.href = url
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
+/** 从 JSON 文件导入记录 */
+export async function importRecords(file: File): Promise<number> {
+  const text = await file.text()
+  const data = JSON.parse(text)
+  if (!data.items || !Array.isArray(data.items)) throw new Error('无效的导出文件格式')
+  const items: HistoryExportItem[] = data.items
+
+  const db = await openDB()
+  const tx = db.transaction(STORE_NAME, 'readwrite')
+  const store = tx.objectStore(STORE_NAME)
+
+  const all = await new Promise<HistoryRecord[]>((resolve, reject) => {
+    const req = store.getAll()
+    req.onsuccess = () => resolve(req.result)
+    req.onerror = () => reject(req.error)
+  })
+  let nextId = all.length > 0 ? Math.max(...all.map(r => r.id)) + 1 : 1
+  let count = 0
+
+  for (const item of items) {
+    store.put({
+      ...item,
+      id: nextId++,
+      timestamp: item.timestamp || Date.now(),
+    } as HistoryRecord)
+    count++
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+  })
+  return count
 }

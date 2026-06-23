@@ -137,28 +137,42 @@
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col overflow-hidden">
           <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 shrink-0">
             <h3 class="text-base font-bold">📋 历史记录</h3>
-            <button class="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 text-lg transition" @click="showHistory = false">✕</button>
+            <div class="flex items-center gap-2">
+              <button v-if="checkedIds.size > 0" class="text-[10px] px-2 py-1 rounded bg-primary text-white hover:bg-primary-dark transition" @click="exportChecked">📤 导出({{ checkedIds.size }})</button>
+              <label class="text-[10px] px-2 py-1 rounded border border-gray-300 text-gray-500 hover:border-primary hover:text-primary transition cursor-pointer">
+                📥 导入
+                <input type="file" accept=".json" class="hidden" @change="onImportFile" />
+              </label>
+              <button class="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 text-lg transition" @click="showHistory = false">✕</button>
+            </div>
           </div>
           <div class="p-4 overflow-y-auto flex-1">
             <div v-if="historyList.length === 0" class="text-center py-10 text-gray-400">
               <span class="text-4xl block mb-2">📭</span>
               <p class="text-sm">暂无历史记录</p>
+              <p class="text-xs mt-1">可点击 📥 导入之前导出的记录</p>
             </div>
             <div v-else class="flex flex-col gap-2">
               <div v-for="h in historyList" :key="h.id"
-                class="flex items-center gap-3 p-2 rounded-lg border border-gray-200 hover:border-primary hover:bg-green-50 cursor-pointer transition"
-                @click="loadHistory(h.id); showHistory = false">
-                <img :src="h.thumbnail" class="w-12 h-12 rounded-lg object-cover border border-gray-200 bg-gray-50 shrink-0" />
-                <div class="flex-1 min-w-0">
+                class="flex items-center gap-2 p-2 rounded-lg border border-gray-200 hover:border-primary/30 transition group">
+                <input type="checkbox" :checked="checkedIds.has(h.id)" class="w-3.5 h-3.5 shrink-0 accent-primary"
+                  @click.stop @change="toggleCheck(h.id)" />
+                <img :src="h.thumbnail" class="w-12 h-12 rounded-lg object-cover border border-gray-200 bg-gray-50 shrink-0 cursor-pointer" @click="loadHistory(h.id); showHistory = false" />
+                <div class="flex-1 min-w-0 cursor-pointer" @click="loadHistory(h.id); showHistory = false">
                   <p class="text-xs font-medium truncate">{{ h.fileName }}</p>
                   <p class="text-[10px] text-gray-400">{{ h.width }}×{{ h.height }} · {{ formatTime(h.timestamp) }}</p>
                 </div>
-                <span class="text-[10px] text-gray-400">{{ h.originalWidth }}×{{ h.originalHeight }}</span>
+                <span class="text-[10px] text-gray-400 shrink-0">{{ h.originalWidth }}×{{ h.originalHeight }}</span>
+                <button class="text-sm shrink-0 transition opacity-40 group-hover:opacity-100"
+                  :class="h.favorite ? 'text-yellow-500' : 'text-gray-300 hover:text-yellow-400'"
+                  :title="h.favorite ? '取消收藏' : '收藏'"
+                  @click.stop="toggleFav(h.id)">{{ h.favorite ? '⭐' : '☆' }}</button>
               </div>
             </div>
           </div>
-          <div v-if="historyList.length > 0" class="px-4 py-2 border-t border-gray-100 shrink-0">
-            <button class="text-xs text-red-400 hover:text-red-600 transition" @click="clearAllHistory">清空全部历史</button>
+          <div v-if="historyList.length > 0" class="px-4 py-2 border-t border-gray-100 shrink-0 flex items-center justify-between">
+            <button class="text-xs text-red-400 hover:text-red-600 transition" @click="clearAllHistory">清空非收藏记录</button>
+            <span v-if="historyFavCount > 0" class="text-[10px] text-yellow-500">⭐ {{ historyFavCount }} 条收藏</span>
           </div>
         </div>
       </div>
@@ -173,7 +187,7 @@ import { ref } from 'vue'
 import ImageUploader from '@/components/ImageUploader.vue'
 import BeadGrid from '@/components/BeadGrid.vue'
 import { processImage } from '@/utils/imageProcessor'
-import { saveHistory, getHistoryList, getHistoryRecord, clearHistory, type HistoryMeta } from '@/utils/history'
+import { saveHistory, getHistoryList, getHistoryRecord, clearHistory, toggleFavorite, exportRecords, importRecords, type HistoryMeta } from '@/utils/history'
 import type { ProcessResult, RawPixel, ColorStrategyId } from '@/types'
 import type { BeadColor } from '@/types'
 import { useColorStrategy } from '@/composables/useColorStrategy'
@@ -188,6 +202,14 @@ const showDownloadMenu = ref(false)
 const showUploadModal = ref(false)
 const showHistory = ref(false)
 const historyList = ref<HistoryMeta[]>([])
+const checkedIds = ref<Set<number>>(new Set())
+const historyFavCount = ref(0)
+
+function toggleCheck(id: number) {
+  const s = new Set(checkedIds.value)
+  s.has(id) ? s.delete(id) : s.add(id)
+  checkedIds.value = s
+}
 const currentFileName = ref('')
 
 const gridRef = ref<InstanceType<typeof BeadGrid>>()
@@ -272,7 +294,35 @@ function resetAll() {
 
 async function openHistory() {
   historyList.value = await getHistoryList()
+  historyFavCount.value = historyList.value.filter(h => h.favorite).length
+  checkedIds.value = new Set()
   showHistory.value = true
+}
+
+async function toggleFav(id: number) {
+  const fav = await toggleFavorite(id)
+  const item = historyList.value.find(h => h.id === id)
+  if (item) item.favorite = fav
+  historyFavCount.value = historyList.value.filter(h => h.favorite).length
+}
+
+async function exportChecked() {
+  if (checkedIds.value.size === 0) return
+  await exportRecords([...checkedIds.value])
+}
+
+async function onImportFile(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  try {
+    const count = await importRecords(file)
+    alert(`成功导入 ${count} 条记录`)
+    await openHistory()
+  } catch (err: any) {
+    alert('导入失败: ' + (err.message || '未知错误'))
+  }
+  input.value = ''
 }
 
 async function loadHistory(id: number) {
@@ -285,10 +335,8 @@ async function loadHistory(id: number) {
     currentId.value = record.strategyId as ColorStrategyId
     fillColor.value = record.fillColor
     result.value = {
-      width: record.width,
-      height: record.height,
-      originalWidth: record.originalWidth,
-      originalHeight: record.originalHeight,
+      width: record.width, height: record.height,
+      originalWidth: record.originalWidth, originalHeight: record.originalHeight,
       pixels: JSON.parse(record.pixelsJson),
     }
     transparentIndices.value = JSON.parse(record.transparentIndicesJson)
@@ -297,8 +345,17 @@ async function loadHistory(id: number) {
 }
 
 async function clearAllHistory() {
-  await clearHistory()
-  historyList.value = []
+  const favCount = historyList.value.filter(h => h.favorite).length
+  let msg = '确定要清除非收藏的历史记录吗？'
+  if (favCount > 0) {
+    msg += `\n\n⚠️ ${favCount} 条收藏记录将保留。\n注意：数据仅存储在本地浏览器中，\n清除浏览器数据将无法恢复！`
+  }
+  if (!confirm(msg)) return
+  const result = await clearHistory()
+  if (favCount > 0) {
+    alert(`已清空 ${result.deleted} 条记录，保留 ${result.kept} 条收藏`)
+  }
+  await openHistory()
 }
 
 function formatTime(ts: number) {
