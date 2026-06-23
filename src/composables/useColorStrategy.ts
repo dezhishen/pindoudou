@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import type { ColorStrategyId } from '@/types'
 import { colorStrategies, strategyMap, defaultStrategyId, getMatchFn } from '@/utils/colorStrategies'
-import { allBeadColors, findClosestBeadColorWith } from '@/utils/colors'
+import { findClosestBeadColorWith } from '@/utils/colors'
 
 /**
  * 颜色匹配策略管理

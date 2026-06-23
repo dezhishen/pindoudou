@@ -1,479 +1,782 @@
 # 拼豆图案生成器 - 多语言文件
-# 所有语言翻译集中在此文件中管理
+# 按翻译 key 组织，方便对比和编辑
 
-zh-CN:
-  app.title: 🧩拼豆图案生成器
-  app.history: 📋 历史
-  app.reupload: 🔄 重新上传
-  app.close: 关闭
-  app.loading: 正在解析图片...
-  app.parseError: 解析图片失败
-  app.loadingHistory: 正在加载历史记录...
-  app.loadHistoryError: '加载历史记录失败: '
-  app.importSuccess: 成功导入 {count} 条记录
-  app.importError: '导入失败: '
-  app.unknownError: 未知错误
-  app.clearConfirm: 确定要清除非收藏的历史记录吗？
-  app.clearFavWarning: '⚠️ {count} 条收藏记录将保留\n注意：数据仅存储在本地浏览器中\n清除浏览器数据将无法恢复！'
-  app.clearResult: 已清空 {deleted} 条记录，保留 {kept} 条收藏
-  app.clearResultNoFav: 已清空 {deleted} 条记录
-  app.copyFormat: '{name} ({hex}): {count}颗'
-  app.footer: 🧩 拼豆图案生成器
+app.title:
+  zh-CN: 拼豆图案生成器
+  en: Bead Pattern Generator
+  zh-TW: 拼豆圖案生成器
 
-  sidebar.original: 🖼️ 原图
-  sidebar.altOriginal: 原图
-  sidebar.strategy: 🎯 颜色匹配策略
-  sidebar.transparent: 🔲 透明填充
-  sidebar.transparentCount: '{count} 颗'
-  sidebar.colorUsage: 🎨 颜色用量
-  sidebar.collapse: 收起 ▲
-  sidebar.expand: 全部 ▼
-  sidebar.downloadPNG: 📥 下载 PNG
-  sidebar.downloadSVG: 📐 下载 SVG 矢量图
-  sidebar.copyPalette: 📋 复制颜色清单
+app.history:
+  zh-CN: 历史
+  en: History
+  zh-TW: 歷史
 
-  upload.title: 📤 上传图片
-  upload.close: ✕
-  upload.heading: 上传图片生成拼豆图案
-  upload.formats: 支持 JPG、PNG、GIF、WEBP 格式
-  upload.hint: 点击或拖拽图片到此处
-  upload.privacy: 🔒 纯前端处理，图片不会上传到服务器
+app.reupload:
+  zh-CN: 重新上传
+  en: Re-upload
+  zh-TW: 重新上傳
 
-  history.title: 📋 历史记录
-  history.export: 📤 导出({count})
-  history.import: 📥 导入
-  history.empty: 暂无历史记录
-  history.emptyHint: 可点击 📥 导入之前导出的记录
-  history.clear: 清空非收藏记录
-  history.favCount: ⭐ {count} 条收藏
-  history.fav: 收藏
-  history.unfav: 取消收藏
+app.close:
+  zh-CN: 关闭
+  en: Close
+  zh-TW: 關閉
 
-  grid.size: 尺寸
-  grid.total: 总颗数
-  grid.colors: 颜色数
-  grid.selected: 选中
-  grid.realSize: 📏 实图
-  grid.realSizeUnit: '{px}px/颗'
+app.loading:
+  zh-CN: 正在解析图片...
+  en: Processing image...
+  zh-TW: 正在解析圖片...
 
-  grid.beadSize: 豆子尺寸
-  grid.beadLarge: 5mm 大号
-  grid.beadSmall: 2.6mm 小号
-  grid.smallHint: （小号≈{w}×{h}mm）
-  grid.largeHint: （大号≈{w}×{h}mm）
+app.parseError:
+  zh-CN: 解析图片失败
+  en: Failed to parse image
+  zh-TW: 解析圖片失敗
 
-  grid.width: 拼豆宽度
-  grid.widthUnit: 颗
+app.loadingHistory:
+  zh-CN: 正在加载历史记录...
+  en: Loading history...
+  zh-TW: 正在載入歷史記錄...
 
-  grid.cellSize: 单元格
-  grid.cellSmall: 小
-  grid.cellSmallTip: 小尺寸（6px/格）
-  grid.cellMedium: 中
-  grid.cellMediumTip: 中尺寸（8px/格）
-  grid.cellLarge: 大
-  grid.cellLargeTip: 大尺寸（12px/格）
-  grid.cellReal: 实图
-  grid.cellRealTip: 按实际物理尺寸显示
+app.loadHistoryError:
+  zh-CN: '加载历史记录失败: '
+  en: 'Failed to load history: '
+  zh-TW: '載入歷史記錄失敗: '
 
-  grid.display: 展示
-  grid.modeColor: 🎨 颜色
-  grid.modeColorTip: 仅显示拼豆颜色
-  grid.modeRuler: 📐 标尺
-  grid.modeRulerTip: 颜色网格 + 坐标标尺
-  grid.modeCoords: 🔢 坐标格
-  grid.modeCoordsTip: 单元格显示坐标数字
+app.importSuccess:
+  zh-CN: 成功导入 {count} 条记录
+  en: Successfully imported {count} record(s)
+  zh-TW: 成功匯入 {count} 筆記錄
 
-  grid.screen: 屏幕
-  grid.screenSize: 尺寸
-  grid.screenWidth: 宽
-  grid.screenHeight: 高
-  grid.screenPPI: PPI≈{ppi}
-  grid.screenDPR: ' DPR×{dpr}'
-  grid.screenIncomplete: 填写完整参数
-  grid.presetAuto: 🔍自动
-  grid.preset14FHD: 14"FHD
-  grid.preset24FHD: 24"FHD
-  grid.preset272K: 27"2K
-  grid.preset274K: 27"4K
+app.importError:
+  zh-CN: '导入失败: '
+  en: 'Import failed: '
+  zh-TW: '匯入失敗: '
 
-  grid.editorBatch: 批量修改 ({count}颗)
-  grid.editorSingle: 第 {index} 颗
+app.unknownError:
+  zh-CN: 未知错误
+  en: Unknown error
+  zh-TW: 未知錯誤
 
-  density.fine: 精细
-  density.medium: 适中
-  density.coarse: 粗糙
+app.clearConfirm:
+  zh-CN: 确定要清除非收藏的历史记录吗？
+  en: Clear all non-favorited history?
+  zh-TW: 確定要清除非收藏的歷史記錄嗎？
 
-  color.WHITE: 白色
-  color.CREAM: 奶油色
-  color.LTPINK: 浅粉色
-  color.PINK: 粉色
-  color.DEEPINK: 深粉色
-  color.RED: 红色
-  color.DKRED: 深红色
-  color.MAROON: 栗色
-  color.LTORANGE: 浅橙色
-  color.ORANGE: 橙色
-  color.DKRANGE: 深橙色
-  color.LTYELLOW: 浅黄色
-  color.YELLOW: 黄色
-  color.DKYELLOW: 深黄色
-  color.LTGREEN: 浅绿色
-  color.GREEN: 绿色
-  color.DKGREEN: 深绿色
-  color.TEAL: 青绿色
-  color.LTBLUE: 浅蓝色
-  color.SKYBLUE: 天蓝色
-  color.BLUE: 蓝色
-  color.DKBLUE: 深蓝色
-  color.INDIGO: 靛蓝色
-  color.PURPLE: 紫色
-  color.LTPURPLE: 浅紫色
-  color.LAVENDER: 薰衣草
-  color.BROWN: 棕色
-  color.LTBROWN: 浅棕色
-  color.DKBROWN: 深棕色
-  color.GRAY: 灰色
-  color.LTGRAY: 浅灰色
-  color.DKGRAY: 深灰色
-  color.BLACK: 黑色
-  color.TAUPE: 灰褐色
-  color.OLIVE: 橄榄绿
-  color.CORAL: 珊瑚色
-  color.PEACH: 桃色
+app.clearFavWarning:
+  zh-CN: '⚠️ {count} 条收藏记录将保留\n注意：数据仅存储在本地浏览器中\n清除浏览器数据将无法恢复！'
+  en: '⚠️ {count} favorited item(s) will be kept\nNote: Data is stored only in your browser\nClearing browser data will lose all records!'
+  zh-TW: '⚠️ {count} 筆收藏記錄將保留\n注意：資料僅儲存在本機瀏覽器中\n清除瀏覽器資料將無法復原！'
 
-  strategy.euclideanRgb: RGB 欧几里得
-  strategy.euclideanRgbDesc: RGB空间直接距离，速度快但对暗色区域偏差较大
-  strategy.weightedRgb: 加权 RGB
-  strategy.weightedRgbDesc: 提高绿色权重，模拟人眼敏感度，比纯RGB略好
-  strategy.labEuclidean: Lab 欧几里得
-  strategy.labEuclideanDesc: 转换到CIELAB感知均匀空间后计算距离，还原度大幅提升
-  strategy.cie76: CIE76 ΔE
-  strategy.cie76Desc: 经典ΔE76色差公式，Lab空间加权距离
-  strategy.cie2000: CIEDE2000
-  strategy.cie2000Desc: 业界金标准，最接近人眼感知，精度最高但计算量较大
+app.clearResult:
+  zh-CN: 已清空 {deleted} 条记录，保留 {kept} 条收藏
+  en: Cleared {deleted} record(s), kept {kept} favorite(s)
+  zh-TW: 已清空 {deleted} 筆記錄，保留 {kept} 筆收藏
 
-  notify.confirm: 确定
-  notify.cancel: 取消
+app.clearResultNoFav:
+  zh-CN: 已清空 {deleted} 条记录
+  en: Cleared {deleted} record(s)
+  zh-TW: 已清空 {deleted} 筆記錄
 
-  lang.switch: 🌐
-  lang.zhCN: 简体中文
-  lang.en: English
-  lang.zhTW: 繁體中文
+app.copyFormat:
+  zh-CN: '{name} ({hex}): {count}颗'
+  en: '{name} ({hex}): {count} beads'
+  zh-TW: '{name} ({hex}): {count}顆'
 
-en:
-  app.title: 🧩 Bead Pattern Generator
-  app.history: 📋 History
-  app.reupload: 🔄 Re-upload
-  app.close: Close
-  app.loading: Processing image...
-  app.parseError: Failed to parse image
-  app.loadingHistory: Loading history...
-  app.loadHistoryError: 'Failed to load history: '
-  app.importSuccess: Successfully imported {count} record(s)
-  app.importError: 'Import failed: '
-  app.unknownError: Unknown error
-  app.clearConfirm: Clear all non-favorited history?
-  app.clearFavWarning: '⚠️ {count} favorited item(s) will be kept\nNote: Data is stored only in your browser\nClearing browser data will lose all records!'
-  app.clearResult: Cleared {deleted} record(s), kept {kept} favorite(s)
-  app.clearResultNoFav: Cleared {deleted} record(s)
-  app.copyFormat: '{name} ({hex}): {count} beads'
-  app.footer: 🧩 Bead Pattern Generator
+app.footer:
+  zh-CN: 拼豆图案生成器
+  en: Bead Pattern Generator
+  zh-TW: 拼豆圖案生成器
 
-  sidebar.original: 🖼️ Original
-  sidebar.altOriginal: Original
-  sidebar.strategy: 🎯 Color Strategy
-  sidebar.transparent: 🔲 Transparent Fill
-  sidebar.transparentCount: '{count} beads'
-  sidebar.colorUsage: 🎨 Color Usage
-  sidebar.collapse: Collapse ▲
-  sidebar.expand: Expand ▼
-  sidebar.downloadPNG: 📥 Download PNG
-  sidebar.downloadSVG: 📐 Download SVG
-  sidebar.copyPalette: 📋 Copy Palette
+sidebar.original:
+  zh-CN: 原图
+  en: Original
+  zh-TW: 原圖
 
-  upload.title: 📤 Upload Image
-  upload.close: ✕
-  upload.heading: Upload image to generate pattern
-  upload.formats: Supports JPG, PNG, GIF, WEBP
-  upload.hint: Click or drag image here
-  upload.privacy: 🔒 Processed locally, image never leaves your device
+sidebar.altOriginal:
+  zh-CN: 原图
+  en: Original
+  zh-TW: 原圖
 
-  history.title: 📋 History
-  history.export: 📤 Export({count})
-  history.import: 📥 Import
-  history.empty: No history yet
-  history.emptyHint: Click 📥 Import to load exported records
-  history.clear: Clear non-favorites
-  history.favCount: ⭐ {count} favorited
-  history.fav: Favorite
-  history.unfav: Unfavorite
+sidebar.strategy:
+  zh-CN: 颜色匹配策略
+  en: Color Strategy
+  zh-TW: 顏色匹配策略
 
-  grid.size: Size
-  grid.total: Total Beads
-  grid.colors: Colors
-  grid.selected: Selected
-  grid.realSize: 📏 Real
-  grid.realSizeUnit: '{px}px/bead'
+sidebar.transparent:
+  zh-CN: 透明填充
+  en: Transparent Fill
+  zh-TW: 透明填充
 
-  grid.beadSize: Bead Size
-  grid.beadLarge: 5mm Large
-  grid.beadSmall: 2.6mm Small
-  grid.smallHint: (small≈{w}×{h}mm)
-  grid.largeHint: (large≈{w}×{h}mm)
+sidebar.transparentCount:
+  zh-CN: '{count} 颗'
+  en: '{count} beads'
+  zh-TW: '{count} 顆'
 
-  grid.width: Bead Count
-  grid.widthUnit: cols
+sidebar.colorUsage:
+  zh-CN: 颜色用量
+  en: Color Usage
+  zh-TW: 顏色用量
 
-  grid.cellSize: Cell
-  grid.cellSmall: S
-  grid.cellSmallTip: Small (6px/cell)
-  grid.cellMedium: M
-  grid.cellMediumTip: Medium (8px/cell)
-  grid.cellLarge: L
-  grid.cellLargeTip: Large (12px/cell)
-  grid.cellReal: Real
-  grid.cellRealTip: Display at actual physical size
+sidebar.collapse:
+  zh-CN: 收起 ▲
+  en: Collapse ▲
+  zh-TW: 收起 ▲
 
-  grid.display: View
-  grid.modeColor: 🎨 Color
-  grid.modeColorTip: Show bead colors only
-  grid.modeRuler: 📐 Ruler
-  grid.modeRulerTip: Grid with coordinate rulers
-  grid.modeCoords: 🔢 Coords
-  grid.modeCoordsTip: Cells show coordinate numbers
+sidebar.expand:
+  zh-CN: 全部 ▼
+  en: Expand ▼
+  zh-TW: 全部 ▼
 
-  grid.screen: Screen
-  grid.screenSize: Size
-  grid.screenWidth: W
-  grid.screenHeight: H
-  grid.screenPPI: PPI≈{ppi}
-  grid.screenDPR: ' DPR×{dpr}'
-  grid.screenIncomplete: Fill all params
-  grid.presetAuto: 🔍Auto
-  grid.preset14FHD: 14"FHD
-  grid.preset24FHD: 24"FHD
-  grid.preset272K: 27"2K
-  grid.preset274K: 27"4K
+sidebar.downloadPNG:
+  zh-CN: 下载 PNG
+  en: Download PNG
+  zh-TW: 下載 PNG
 
-  grid.editorBatch: Batch edit ({count} beads)
-  grid.editorSingle: 'Bead #{index}'
+sidebar.downloadSVG:
+  zh-CN: 下载 SVG 矢量图
+  en: Download SVG
+  zh-TW: 下載 SVG 向量圖
 
-  density.fine: Fine
-  density.medium: Medium
-  density.coarse: Coarse
+sidebar.copyPalette:
+  zh-CN: 复制颜色清单
+  en: Copy Palette
+  zh-TW: 複製顏色清單
 
-  color.WHITE: White
-  color.CREAM: Cream
-  color.LTPINK: Light Pink
-  color.PINK: Pink
-  color.DEEPINK: Deep Pink
-  color.RED: Red
-  color.DKRED: Dark Red
-  color.MAROON: Maroon
-  color.LTORANGE: Light Orange
-  color.ORANGE: Orange
-  color.DKRANGE: Dark Orange
-  color.LTYELLOW: Light Yellow
-  color.YELLOW: Yellow
-  color.DKYELLOW: Dark Yellow
-  color.LTGREEN: Light Green
-  color.GREEN: Green
-  color.DKGREEN: Dark Green
-  color.TEAL: Teal
-  color.LTBLUE: Light Blue
-  color.SKYBLUE: Sky Blue
-  color.BLUE: Blue
-  color.DKBLUE: Dark Blue
-  color.INDIGO: Indigo
-  color.PURPLE: Purple
-  color.LTPURPLE: Light Purple
-  color.LAVENDER: Lavender
-  color.BROWN: Brown
-  color.LTBROWN: Light Brown
-  color.DKBROWN: Dark Brown
-  color.GRAY: Gray
-  color.LTGRAY: Light Gray
-  color.DKGRAY: Dark Gray
-  color.BLACK: Black
-  color.TAUPE: Taupe
-  color.OLIVE: Olive
-  color.CORAL: Coral
-  color.PEACH: Peach
+upload.title:
+  zh-CN: 上传图片
+  en: Upload Image
+  zh-TW: 上傳圖片
 
-  strategy.euclideanRgb: RGB Euclidean
-  strategy.euclideanRgbDesc: Direct RGB distance, fast but less accurate in dark areas
-  strategy.weightedRgb: Weighted RGB
-  strategy.weightedRgbDesc: Higher green weight, simulates human eye sensitivity
-  strategy.labEuclidean: Lab Euclidean
-  strategy.labEuclideanDesc: CIELAB perceptually uniform space, much better accuracy
-  strategy.cie76: CIE76 ΔE
-  strategy.cie76Desc: Classic ΔE76 formula, weighted distance in Lab space
-  strategy.cie2000: CIEDE2000
-  strategy.cie2000Desc: Industry gold standard, closest to human perception
+upload.close:
+  zh-CN: ✕
+  en: ✕
+  zh-TW: ✕
 
-  notify.confirm: Confirm
-  notify.cancel: Cancel
+upload.heading:
+  zh-CN: 上传图片生成拼豆图案
+  en: Upload image to generate pattern
+  zh-TW: 上傳圖片生成拼豆圖案
 
-  lang.switch: 🌐
-  lang.zhCN: 简体中文
-  lang.en: English
-  lang.zhTW: 繁體中文
+upload.formats:
+  zh-CN: 支持 JPG、PNG、GIF、WEBP 格式
+  en: Supports JPG, PNG, GIF, WEBP
+  zh-TW: 支援 JPG、PNG、GIF、WEBP 格式
 
-zh-TW:
-  app.title: 🧩拼豆圖案生成器
-  app.history: 📋 歷史
-  app.reupload: 🔄 重新上傳
-  app.close: 關閉
-  app.loading: 正在解析圖片...
-  app.parseError: 解析圖片失敗
-  app.loadingHistory: 正在載入歷史記錄...
-  app.loadHistoryError: '載入歷史記錄失敗: '
-  app.importSuccess: 成功匯入 {count} 筆記錄
-  app.importError: '匯入失敗: '
-  app.unknownError: 未知錯誤
-  app.clearConfirm: 確定要清除非收藏的歷史記錄嗎？
-  app.clearFavWarning: '⚠️ {count} 筆收藏記錄將保留\n注意：資料僅儲存在本機瀏覽器中\n清除瀏覽器資料將無法復原！'
-  app.clearResult: 已清空 {deleted} 筆記錄，保留 {kept} 筆收藏
-  app.clearResultNoFav: 已清空 {deleted} 筆記錄
-  app.copyFormat: '{name} ({hex}): {count}顆'
-  app.footer: 🧩 拼豆圖案生成器
+upload.hint:
+  zh-CN: 点击或拖拽图片到此处
+  en: Click or drag image here
+  zh-TW: 點擊或拖曳圖片到此處
 
-  sidebar.original: 🖼️ 原圖
-  sidebar.altOriginal: 原圖
-  sidebar.strategy: 🎯 顏色匹配策略
-  sidebar.transparent: 🔲 透明填充
-  sidebar.transparentCount: '{count} 顆'
-  sidebar.colorUsage: 🎨 顏色用量
-  sidebar.collapse: 收起 ▲
-  sidebar.expand: 全部 ▼
-  sidebar.downloadPNG: 📥 下載 PNG
-  sidebar.downloadSVG: 📐 下載 SVG 向量圖
-  sidebar.copyPalette: 📋 複製顏色清單
+upload.privacy:
+  zh-CN: 纯前端处理，图片不会上传到服务器
+  en: Processed locally, image never leaves your device
+  zh-TW: 純前端處理，圖片不會上傳到伺服器
 
-  upload.title: 📤 上傳圖片
-  upload.close: ✕
-  upload.heading: 上傳圖片生成拼豆圖案
-  upload.formats: 支援 JPG、PNG、GIF、WEBP 格式
-  upload.hint: 點擊或拖曳圖片到此處
-  upload.privacy: 🔒 純前端處理，圖片不會上傳到伺服器
+history.title:
+  zh-CN: 历史记录
+  en: History
+  zh-TW: 歷史記錄
 
-  history.title: 📋 歷史記錄
-  history.export: 📤 匯出({count})
-  history.import: 📥 匯入
-  history.empty: 暫無歷史記錄
-  history.emptyHint: 可點擊 📥 匯入之前匯出的記錄
-  history.clear: 清空非收藏記錄
-  history.favCount: ⭐ {count} 筆收藏
-  history.fav: 收藏
-  history.unfav: 取消收藏
+history.export:
+  zh-CN: 导出({count})
+  en: Export({count})
+  zh-TW: 匯出({count})
 
-  grid.size: 尺寸
-  grid.total: 總顆數
-  grid.colors: 顏色數
-  grid.selected: 選中
-  grid.realSize: 📏 實圖
-  grid.realSizeUnit: '{px}px/顆'
+history.import:
+  zh-CN: 导入
+  en: Import
+  zh-TW: 匯入
 
-  grid.beadSize: 豆子尺寸
-  grid.beadLarge: 5mm 大號
-  grid.beadSmall: 2.6mm 小號
-  grid.smallHint: （小號≈{w}×{h}mm）
-  grid.largeHint: （大號≈{w}×{h}mm）
+history.empty:
+  zh-CN: 暂无历史记录
+  en: No history yet
+  zh-TW: 暫無歷史記錄
 
-  grid.width: 拼豆寬度
-  grid.widthUnit: 顆
+history.emptyHint:
+  zh-CN: 可点击 📥 导入之前导出的记录
+  en: Click 📥 Import to load exported records
+  zh-TW: 可點擊 📥 匯入之前匯出的記錄
 
-  grid.cellSize: 儲存格
-  grid.cellSmall: 小
-  grid.cellSmallTip: 小尺寸（6px/格）
-  grid.cellMedium: 中
-  grid.cellMediumTip: 中尺寸（8px/格）
-  grid.cellLarge: 大
-  grid.cellLargeTip: 大尺寸（12px/格）
-  grid.cellReal: 實圖
-  grid.cellRealTip: 按實際物理尺寸顯示
+history.clear:
+  zh-CN: 清空非收藏记录
+  en: Clear non-favorites
+  zh-TW: 清空非收藏記錄
 
-  grid.display: 展示
-  grid.modeColor: 🎨 顏色
-  grid.modeColorTip: 僅顯示拼豆顏色
-  grid.modeRuler: 📐 尺規
-  grid.modeRulerTip: 顏色網格 + 座標尺規
-  grid.modeCoords: 🔢 座標格
-  grid.modeCoordsTip: 儲存格顯示座標數字
+history.favCount:
+  zh-CN: {count} 条收藏
+  en: {count} favorited
+  zh-TW: {count} 筆收藏
 
-  grid.screen: 螢幕
-  grid.screenSize: 尺寸
-  grid.screenWidth: 寬
-  grid.screenHeight: 高
-  grid.screenPPI: PPI≈{ppi}
-  grid.screenDPR: ' DPR×{dpr}'
-  grid.screenIncomplete: 填寫完整參數
-  grid.presetAuto: 🔍自動
-  grid.preset14FHD: 14"FHD
-  grid.preset24FHD: 24"FHD
-  grid.preset272K: 27"2K
-  grid.preset274K: 27"4K
+history.fav:
+  zh-CN: 收藏
+  en: Favorite
+  zh-TW: 收藏
 
-  grid.editorBatch: 批次修改 ({count}顆)
-  grid.editorSingle: 第 {index} 顆
+history.unfav:
+  zh-CN: 取消收藏
+  en: Unfavorite
+  zh-TW: 取消收藏
 
-  density.fine: 精細
-  density.medium: 適中
-  density.coarse: 粗糙
+grid.size:
+  zh-CN: 尺寸
+  en: Size
+  zh-TW: 尺寸
 
-  color.WHITE: 白色
-  color.CREAM: 奶油色
-  color.LTPINK: 淺粉色
-  color.PINK: 粉色
-  color.DEEPINK: 深粉色
-  color.RED: 紅色
-  color.DKRED: 深紅色
-  color.MAROON: 栗色
-  color.LTORANGE: 淺橙色
-  color.ORANGE: 橙色
-  color.DKRANGE: 深橙色
-  color.LTYELLOW: 淺黃色
-  color.YELLOW: 黃色
-  color.DKYELLOW: 深黃色
-  color.LTGREEN: 淺綠色
-  color.GREEN: 綠色
-  color.DKGREEN: 深綠色
-  color.TEAL: 青綠色
-  color.LTBLUE: 淺藍色
-  color.SKYBLUE: 天藍色
-  color.BLUE: 藍色
-  color.DKBLUE: 深藍色
-  color.INDIGO: 靛藍色
-  color.PURPLE: 紫色
-  color.LTPURPLE: 淺紫色
-  color.LAVENDER: 薰衣草
-  color.BROWN: 棕色
-  color.LTBROWN: 淺棕色
-  color.DKBROWN: 深棕色
-  color.GRAY: 灰色
-  color.LTGRAY: 淺灰色
-  color.DKGRAY: 深灰色
-  color.BLACK: 黑色
-  color.TAUPE: 灰褐色
-  color.OLIVE: 橄欖綠
-  color.CORAL: 珊瑚色
-  color.PEACH: 桃色
+grid.total:
+  zh-CN: 总颗数
+  en: Total Beads
+  zh-TW: 總顆數
 
-  strategy.euclideanRgb: RGB 歐幾里得
-  strategy.euclideanRgbDesc: RGB空間直接距離，速度快但對暗色區域偏差較大
-  strategy.weightedRgb: 加權 RGB
-  strategy.weightedRgbDesc: 提高綠色權重，模擬人眼敏感度，比純RGB略好
-  strategy.labEuclidean: Lab 歐幾里得
-  strategy.labEuclideanDesc: 轉換到CIELAB感知均勻空間後計算距離，還原度大幅提升
-  strategy.cie76: CIE76 ΔE
-  strategy.cie76Desc: 經典ΔE76色差公式，Lab空間加權距離
-  strategy.cie2000: CIEDE2000
-  strategy.cie2000Desc: 業界金標準，最接近人眼感知，精度最高但計算量較大
+grid.colors:
+  zh-CN: 颜色数
+  en: Colors
+  zh-TW: 顏色數
 
-  notify.confirm: 確定
-  notify.cancel: 取消
+grid.selected:
+  zh-CN: 选中
+  en: Selected
+  zh-TW: 選中
 
-  lang.switch: 🌐
-  lang.zhCN: 简体中文
-  lang.en: English
-  lang.zhTW: 繁體中文
+grid.realSize:
+  zh-CN: 实图
+  en: Real
+  zh-TW: 實圖
+
+grid.realSizeUnit:
+  zh-CN: '{px}px/颗'
+  en: '{px}px/bead'
+  zh-TW: '{px}px/顆'
+
+grid.beadSize:
+  zh-CN: 豆子尺寸
+  en: Bead Size
+  zh-TW: 豆子尺寸
+
+grid.beadLarge:
+  zh-CN: 5mm 大号
+  en: 5mm Large
+  zh-TW: 5mm 大號
+
+grid.beadSmall:
+  zh-CN: 2.6mm 小号
+  en: 2.6mm Small
+  zh-TW: 2.6mm 小號
+
+grid.smallHint:
+  zh-CN: （小号≈{w}×{h}mm）
+  en: (small≈{w}×{h}mm)
+  zh-TW: （小號≈{w}×{h}mm）
+
+grid.largeHint:
+  zh-CN: （大号≈{w}×{h}mm）
+  en: (large≈{w}×{h}mm)
+  zh-TW: （大號≈{w}×{h}mm）
+
+grid.width:
+  zh-CN: 拼豆宽度
+  en: Bead Count
+  zh-TW: 拼豆寬度
+
+grid.widthUnit:
+  zh-CN: 颗
+  en: cols
+  zh-TW: 顆
+
+grid.cellSize:
+  zh-CN: 单元格
+  en: Cell
+  zh-TW: 儲存格
+
+grid.cellSmall:
+  zh-CN: 小
+  en: S
+  zh-TW: 小
+
+grid.cellSmallTip:
+  zh-CN: 小尺寸（6px/格）
+  en: Small (6px/cell)
+  zh-TW: 小尺寸（6px/格）
+
+grid.cellMedium:
+  zh-CN: 中
+  en: M
+  zh-TW: 中
+
+grid.cellMediumTip:
+  zh-CN: 中尺寸（8px/格）
+  en: Medium (8px/cell)
+  zh-TW: 中尺寸（8px/格）
+
+grid.cellLarge:
+  zh-CN: 大
+  en: L
+  zh-TW: 大
+
+grid.cellLargeTip:
+  zh-CN: 大尺寸（12px/格）
+  en: Large (12px/cell)
+  zh-TW: 大尺寸（12px/格）
+
+grid.cellReal:
+  zh-CN: 实图
+  en: Real
+  zh-TW: 實圖
+
+grid.cellRealTip:
+  zh-CN: 按实际物理尺寸显示
+  en: Display at actual physical size
+  zh-TW: 按實際物理尺寸顯示
+
+grid.display:
+  zh-CN: 展示
+  en: View
+  zh-TW: 展示
+
+grid.modeColor:
+  zh-CN: 颜色
+  en: Color
+  zh-TW: 顏色
+
+grid.modeColorTip:
+  zh-CN: 仅显示拼豆颜色
+  en: Show bead colors only
+  zh-TW: 僅顯示拼豆顏色
+
+grid.modeRuler:
+  zh-CN: 标尺
+  en: Ruler
+  zh-TW: 尺規
+
+grid.modeRulerTip:
+  zh-CN: 颜色网格 + 坐标标尺
+  en: Grid with coordinate rulers
+  zh-TW: 顏色網格 + 座標尺規
+
+grid.modeCoords:
+  zh-CN: 坐标格
+  en: Coords
+  zh-TW: 座標格
+
+grid.modeCoordsTip:
+  zh-CN: 单元格显示坐标数字
+  en: Cells show coordinate numbers
+  zh-TW: 儲存格顯示座標數字
+
+grid.screen:
+  zh-CN: 屏幕
+  en: Screen
+  zh-TW: 螢幕
+
+grid.screenSize:
+  zh-CN: 尺寸
+  en: Size
+  zh-TW: 尺寸
+
+grid.screenWidth:
+  zh-CN: 宽
+  en: W
+  zh-TW: 寬
+
+grid.screenHeight:
+  zh-CN: 高
+  en: H
+  zh-TW: 高
+
+grid.screenPPI:
+  zh-CN: PPI≈{ppi}
+  en: PPI≈{ppi}
+  zh-TW: PPI≈{ppi}
+
+grid.screenDPR:
+  zh-CN: ' DPR×{dpr}'
+  en: ' DPR×{dpr}'
+  zh-TW: ' DPR×{dpr}'
+
+grid.screenIncomplete:
+  zh-CN: 填写完整参数
+  en: Fill all params
+  zh-TW: 填寫完整參數
+
+grid.presetAuto:
+  zh-CN: 自动
+  en: Auto
+  zh-TW: 自動
+
+grid.preset14FHD:
+  zh-CN: 14"FHD
+  en: 14"FHD
+  zh-TW: 14"FHD
+
+grid.preset24FHD:
+  zh-CN: 24"FHD
+  en: 24"FHD
+  zh-TW: 24"FHD
+
+grid.preset272K:
+  zh-CN: 27"2K
+  en: 27"2K
+  zh-TW: 27"2K
+
+grid.preset274K:
+  zh-CN: 27"4K
+  en: 27"4K
+  zh-TW: 27"4K
+
+grid.editorBatch:
+  zh-CN: 批量修改 ({count}颗)
+  en: Batch edit ({count} beads)
+  zh-TW: 批次修改 ({count}顆)
+
+grid.editorSingle:
+  zh-CN: 第 {index} 颗
+  en: 'Bead #{index}'
+  zh-TW: 第 {index} 顆
+
+density.fine:
+  zh-CN: 精细
+  en: Fine
+  zh-TW: 精細
+
+density.medium:
+  zh-CN: 适中
+  en: Medium
+  zh-TW: 適中
+
+density.coarse:
+  zh-CN: 粗糙
+  en: Coarse
+  zh-TW: 粗糙
+
+color.WHITE:
+  zh-CN: 白色
+  en: White
+  zh-TW: 白色
+
+color.CREAM:
+  zh-CN: 奶油色
+  en: Cream
+  zh-TW: 奶油色
+
+color.LTPINK:
+  zh-CN: 浅粉色
+  en: Light Pink
+  zh-TW: 淺粉色
+
+color.PINK:
+  zh-CN: 粉色
+  en: Pink
+  zh-TW: 粉色
+
+color.DEEPINK:
+  zh-CN: 深粉色
+  en: Deep Pink
+  zh-TW: 深粉色
+
+color.RED:
+  zh-CN: 红色
+  en: Red
+  zh-TW: 紅色
+
+color.DKRED:
+  zh-CN: 深红色
+  en: Dark Red
+  zh-TW: 深紅色
+
+color.MAROON:
+  zh-CN: 栗色
+  en: Maroon
+  zh-TW: 栗色
+
+color.LTORANGE:
+  zh-CN: 浅橙色
+  en: Light Orange
+  zh-TW: 淺橙色
+
+color.ORANGE:
+  zh-CN: 橙色
+  en: Orange
+  zh-TW: 橙色
+
+color.DKRANGE:
+  zh-CN: 深橙色
+  en: Dark Orange
+  zh-TW: 深橙色
+
+color.LTYELLOW:
+  zh-CN: 浅黄色
+  en: Light Yellow
+  zh-TW: 淺黃色
+
+color.YELLOW:
+  zh-CN: 黄色
+  en: Yellow
+  zh-TW: 黃色
+
+color.DKYELLOW:
+  zh-CN: 深黄色
+  en: Dark Yellow
+  zh-TW: 深黃色
+
+color.LTGREEN:
+  zh-CN: 浅绿色
+  en: Light Green
+  zh-TW: 淺綠色
+
+color.GREEN:
+  zh-CN: 绿色
+  en: Green
+  zh-TW: 綠色
+
+color.DKGREEN:
+  zh-CN: 深绿色
+  en: Dark Green
+  zh-TW: 深綠色
+
+color.TEAL:
+  zh-CN: 青绿色
+  en: Teal
+  zh-TW: 青綠色
+
+color.LTBLUE:
+  zh-CN: 浅蓝色
+  en: Light Blue
+  zh-TW: 淺藍色
+
+color.SKYBLUE:
+  zh-CN: 天蓝色
+  en: Sky Blue
+  zh-TW: 天藍色
+
+color.BLUE:
+  zh-CN: 蓝色
+  en: Blue
+  zh-TW: 藍色
+
+color.DKBLUE:
+  zh-CN: 深蓝色
+  en: Dark Blue
+  zh-TW: 深藍色
+
+color.INDIGO:
+  zh-CN: 靛蓝色
+  en: Indigo
+  zh-TW: 靛藍色
+
+color.PURPLE:
+  zh-CN: 紫色
+  en: Purple
+  zh-TW: 紫色
+
+color.LTPURPLE:
+  zh-CN: 浅紫色
+  en: Light Purple
+  zh-TW: 淺紫色
+
+color.LAVENDER:
+  zh-CN: 薰衣草
+  en: Lavender
+  zh-TW: 薰衣草
+
+color.BROWN:
+  zh-CN: 棕色
+  en: Brown
+  zh-TW: 棕色
+
+color.LTBROWN:
+  zh-CN: 浅棕色
+  en: Light Brown
+  zh-TW: 淺棕色
+
+color.DKBROWN:
+  zh-CN: 深棕色
+  en: Dark Brown
+  zh-TW: 深棕色
+
+color.GRAY:
+  zh-CN: 灰色
+  en: Gray
+  zh-TW: 灰色
+
+color.LTGRAY:
+  zh-CN: 浅灰色
+  en: Light Gray
+  zh-TW: 淺灰色
+
+color.DKGRAY:
+  zh-CN: 深灰色
+  en: Dark Gray
+  zh-TW: 深灰色
+
+color.BLACK:
+  zh-CN: 黑色
+  en: Black
+  zh-TW: 黑色
+
+color.TAUPE:
+  zh-CN: 灰褐色
+  en: Taupe
+  zh-TW: 灰褐色
+
+color.OLIVE:
+  zh-CN: 橄榄绿
+  en: Olive
+  zh-TW: 橄欖綠
+
+color.CORAL:
+  zh-CN: 珊瑚色
+  en: Coral
+  zh-TW: 珊瑚色
+
+color.PEACH:
+  zh-CN: 桃色
+  en: Peach
+  zh-TW: 桃色
+
+strategy.euclidean-rgb:
+  zh-CN: RGB 欧几里得
+  en: RGB Euclidean
+  zh-TW: RGB 歐幾里得
+
+strategy.euclidean-rgbDesc:
+  zh-CN: RGB空间直接距离，速度快但对暗色区域偏差较大
+  en: Direct RGB distance, fast but less accurate in dark areas
+  zh-TW: RGB空間直接距離，速度快但對暗色區域偏差較大
+
+strategy.weighted-rgb:
+  zh-CN: 加权 RGB
+  en: Weighted RGB
+  zh-TW: 加權 RGB
+
+strategy.weighted-rgbDesc:
+  zh-CN: 提高绿色权重，模拟人眼敏感度，比纯RGB略好
+  en: Higher green weight, simulates human eye sensitivity
+  zh-TW: 提高綠色權重，模擬人眼敏感度，比純RGB略好
+
+strategy.lab-euclidean:
+  zh-CN: Lab 欧几里得
+  en: Lab Euclidean
+  zh-TW: Lab 歐幾里得
+
+strategy.lab-euclideanDesc:
+  zh-CN: 转换到CIELAB感知均匀空间后计算距离，还原度大幅提升
+  en: CIELAB perceptually uniform space, much better accuracy
+  zh-TW: 轉換到CIELAB感知均勻空間後計算距離，還原度大幅提升
+
+strategy.cie76:
+  zh-CN: CIE76 ΔE
+  en: CIE76 ΔE
+  zh-TW: CIE76 ΔE
+
+strategy.cie76Desc:
+  zh-CN: 经典ΔE76色差公式，Lab空间加权距离
+  en: Classic ΔE76 formula, weighted distance in Lab space
+  zh-TW: 經典ΔE76色差公式，Lab空間加權距離
+
+strategy.cie2000:
+  zh-CN: CIEDE2000
+  en: CIEDE2000
+  zh-TW: CIEDE2000
+
+strategy.cie2000Desc:
+  zh-CN: 业界金标准，最接近人眼感知，精度最高但计算量较大
+  en: Industry gold standard, closest to human perception
+  zh-TW: 業界金標準，最接近人眼感知，精度最高但計算量較大
+
+notify.confirm:
+  zh-CN: 确定
+  en: Confirm
+  zh-TW: 確定
+
+notify.cancel:
+  zh-CN: 取消
+  en: Cancel
+  zh-TW: 取消
+
+lang.switch:
+  zh-CN: 🌐
+  en: 🌐
+  zh-TW: 🌐
+
+lang.zhCN:
+  zh-CN: 简体中文
+  en: 简体中文
+  zh-TW: 简体中文
+
+lang.en:
+  zh-CN: English
+  en: English
+  zh-TW: English
+
+lang.zhTW:
+  zh-CN: 繁體中文
+  en: 繁體中文
+  zh-TW: 繁體中文
+
+terms.link:
+  zh-CN: 用户协议
+  en: Terms of Use
+  zh-TW: 用戶協議
+
+terms.back:
+  zh-CN: 返回首页
+  en: Back to Home
+  zh-TW: 返回首頁
+
+terms.title:
+  zh-CN: 用户协议
+  en: Terms of Use
+  zh-TW: 用戶協議
+
+terms.lastUpdated:
+  zh-CN: 最后更新
+  en: Last Updated
+  zh-TW: 最後更新
+
+terms.s1Title:
+  zh-CN: 服务说明
+  en: Service Description
+  zh-TW: 服務說明
+
+terms.s1Text:
+  zh-CN: 拼豆图案生成器是一个纯前端的图片处理工具，用于将上传的图片转换为拼豆图案。所有图片处理均在用户浏览器中完成，不会上传到任何服务器。
+  en: Bead Pattern Generator is a client-side image processing tool that converts uploaded images into bead patterns. All image processing is done locally in your browser and no data is uploaded to any server.
+  zh-TW: 拼豆圖案生成器是一個純前端的圖片處理工具，用於將上傳的圖片轉換為拼豆圖案。所有圖片處理均在用戶瀏覽器中完成，不會上傳到任何伺服器。
+
+terms.s2Title:
+  zh-CN: 隐私保护
+  en: Privacy Protection
+  zh-TW: 隱私保護
+
+terms.s2Text:
+  zh-CN: 我们高度重视用户隐私。本应用不会收集、存储或传输您的任何个人数据或上传的图片。历史记录功能将数据存储在浏览器的本地存储中，您可以随时清除。
+  en: We highly value user privacy. This application does not collect, store, or transmit any personal data or uploaded images. The history feature stores data in your browser's local storage, which you can clear at any time.
+  zh-TW: 我們高度重視用戶隱私。本應用不會收集、儲存或傳輸您的任何個人資料或上傳的圖片。歷史記錄功能將資料儲存在瀏覽器的本機儲存中，您可以隨時清除。
+
+terms.s3Title:
+  zh-CN: 知识产权
+  en: Intellectual Property
+  zh-TW: 知識產權
+
+terms.s3Text:
+  zh-CN: 用户上传的图片及其生成的拼豆图案，其知识产权归用户所有。本应用的代码和设计归开发者所有。
+  en: The intellectual property rights of uploaded images and generated bead patterns belong to the user. The application code and design belong to the developer.
+  zh-TW: 用戶上傳的圖片及其生成的拼豆圖案，其知識產權歸用戶所有。本應用的程式碼和設計歸開發者所有。
+
+terms.s4Title:
+  zh-CN: 免责声明
+  en: Disclaimer
+  zh-TW: 免責聲明
+
+terms.s4Text:
+  zh-CN: 本应用按"现状"提供，不提供任何明示或暗示的保证。开发者不对因使用本应用而产生的任何直接或间接损失承担责任。颜色匹配结果仅供参考，实际拼豆效果可能因屏幕色差、豆子批次等因素有所差异。
+  en: This application is provided "as is" without any express or implied warranties. The developer is not liable for any direct or indirect damages arising from the use of this application. Color matching results are for reference only, and actual bead effects may vary due to screen color differences, bead batches, and other factors.
+  zh-TW: 本應用按"現狀"提供，不提供任何明示或暗示的保證。開發者不對因使用本應用而產生的任何直接或間接損失承擔責任。顏色匹配結果僅供參考，實際拼豆效果可能因螢幕色差、豆子批次等因素有所差異。
+
+terms.s5Title:
+  zh-CN: 条款变更
+  en: Changes to Terms
+  zh-TW: 條款變更
+
+terms.s5Text:
+  zh-CN: 我们保留随时修改本协议的权利。修改后的协议将在本页面上发布后立即生效。建议您定期查看本页面以了解最新条款。
+  en: We reserve the right to modify these terms at any time. Modified terms will take effect immediately upon posting on this page. We recommend reviewing this page periodically for updates.
+  zh-TW: 我們保留隨時修改本協議的權利。修改後的協議將在本頁面上發布後立即生效。建議您定期查看本頁面以了解最新條款。

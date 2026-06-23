@@ -5,9 +5,105 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>拼豆图案生成器</title>
+    <style>
+      #app-loading {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        min-height: 100vh; background: #f3f4f6; font-family: system-ui, sans-serif;
+      }
+      .progress-wrap {
+        width: 240px; height: 4px; background: #e5e7eb; border-radius: 2px;
+        overflow: hidden; margin-bottom: 12px;
+      }
+      .progress-bar {
+        width: 0%; height: 100%; background: linear-gradient(90deg, #22B14C, #4ade80);
+        border-radius: 2px; transition: width 0.3s ease;
+      }
+      .progress-text {
+        font-size: 28px; font-weight: 700; color: #22B14C;
+        font-variant-numeric: tabular-nums; margin-bottom: 4px;
+      }
+      .progress-hint {
+        font-size: 13px; color: #9ca3af;
+      }
+      #app-loading.hidden { display: none; }
+    </style>
   </head>
   <body>
+    <div id="app-loading">
+      <div class="progress-text">0%</div>
+      <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+      <p class="progress-hint">正在加载资源...</p>
+    </div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      (function() {
+        var bar = document.getElementById('progress-bar')
+        var text = document.querySelector('.progress-text')
+        var hint = document.querySelector('.progress-hint')
+        var start = Date.now()
+        var target = 95 // max simulated progress
+        var duration = 4000 // ms to reach target
+
+        function update() {
+          var elapsed = Date.now() - start
+          // Ease-out curve: fast start, slow finish
+          var ratio = Math.min(elapsed / duration, 1)
+          var eased = 1 - Math.pow(1 - ratio, 3)
+          var pct = Math.round(eased * target)
+          bar.style.width = pct + '%'
+          text.textContent = pct + '%'
+          if (ratio < 1) {
+            requestAnimationFrame(update)
+          }
+        }
+        requestAnimationFrame(update)
+
+        // Track real resource loads for more accuracy
+        var totalResources = 0
+        var loadedResources = 0
+        try {
+          var perfObserver = new PerformanceObserver(function(list) {
+            var entries = list.getEntries()
+            for (var i = 0; i < entries.length; i++) {
+              if (entries[i].initiatorType === 'script' || entries[i].initiatorType === 'link' || entries[i].initiatorType === 'css') {
+                totalResources++
+              }
+            }
+          })
+          perfObserver.observe({ type: 'resource', buffered: true })
+          // Boost progress based on resource count
+          setInterval(function() {
+            if (totalResources > 0 && loadedResources < totalResources) {
+              loadedResources = Math.min(totalResources, loadedResources + 1)
+              var realPct = Math.round((loadedResources / totalResources) * target)
+              var currentPct = parseInt(text.textContent) || 0
+              if (realPct > currentPct) {
+                bar.style.width = realPct + '%'
+                text.textContent = realPct + '%'
+              }
+            }
+          }, 200)
+        } catch(e) {}
+
+        // Vue mount detection → 100% complete
+        var appEl = document.getElementById('app')
+        if (appEl) {
+          var observer = new MutationObserver(function() {
+            if (appEl.children.length > 0) {
+              bar.style.width = '100%'
+              text.textContent = '100%'
+              if (hint) hint.textContent = '加载完成'
+              setTimeout(function() {
+                var loading = document.getElementById('app-loading')
+                if (loading) loading.classList.add('hidden')
+              }, 400)
+              observer.disconnect()
+            }
+          })
+          observer.observe(appEl, { childList: true, subtree: true })
+        }
+      })()
+    </script>
   </body>
 </html>

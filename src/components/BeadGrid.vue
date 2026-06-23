@@ -19,7 +19,7 @@
         <span class="text-sm font-bold text-primary dark:text-green-400">{{ selectedIndices.size }}</span>
       </div>
       <div v-if="realSizeMode && realCellPx" class="flex flex-col items-center bg-orange-50 dark:bg-orange-900/20 px-3 py-1.5 rounded-lg">
-        <span class="text-xs text-orange-500">{{ $t('grid.realSize') }}</span>
+        <span class="text-xs text-orange-500">📏 {{ $t('grid.realSize') }}</span>
         <span class="text-sm font-bold text-orange-600">{{ $t('grid.realSizeUnit', { px: realCellPx }) }}</span>
       </div>
     </div>
@@ -34,7 +34,7 @@
           @click="beadSizeMM = 5">{{ $t('grid.beadLarge') }}</button>
         <button
           class="px-4 py-1.5 text-xs font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
-          :class="beadSizeMM === 2.6 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+          :class="beadSizeMM === 2.6 ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-500'"
           @click="beadSizeMM = 2.6">{{ $t('grid.beadSmall') }}</button>
       </div>
       <span class="text-xs font-semibold text-primary whitespace-nowrap">≈ {{ physicalSize.label }}</span>
@@ -104,21 +104,21 @@
             :class="displayMode === 'color' ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
             @click="displayMode = 'color'"
             :title="$t('grid.modeColorTip')">
-            {{ $t('grid.modeColor') }}
+            🎨 {{ $t('grid.modeColor') }}
           </button>
           <button
             class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 dark:border-gray-600 last:border-r-0"
             :class="displayMode === 'both' ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
             @click="displayMode = 'both'"
             :title="$t('grid.modeRulerTip')">
-            {{ $t('grid.modeRuler') }}
+            📐 {{ $t('grid.modeRuler') }}
           </button>
           <button
             class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 dark:border-gray-600 last:border-r-0"
             :class="displayMode === 'coords' ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
             @click="displayMode = 'coords'"
             :title="$t('grid.modeCoordsTip')">
-            {{ $t('grid.modeCoords') }}
+            🔢 {{ $t('grid.modeCoords') }}
           </button>
         </div>
       </div>

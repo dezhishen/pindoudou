@@ -17,7 +17,7 @@
       <div v-if="confirmState.visible" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/40" @click.self="closeConfirm(false)">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 overflow-hidden">
           <div class="px-5 py-4 text-center">
-            <p class="text-sm text-gray-700 whitespace-pre-line">{{ confirmState.text }}</p>
+            <p class="text-sm text-gray-700 dark:text-gray-200 whitespace-pre-line">{{ confirmState.text }}</p>
           </div>
           <div class="flex border-t border-gray-100">
             <button class="flex-1 px-4 py-3 text-sm font-medium text-gray-500 hover:bg-gray-50 transition"

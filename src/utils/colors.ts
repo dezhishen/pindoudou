@@ -64,19 +64,6 @@ export function findClosestBeadColorWith(
   return matchFn(r, g, b, allBeadColors)
 }
 
-/** 将原始像素数组转换为拼豆颜色像素数组 */
-export function rawPixelsToBeadPixels(
-  raw: RawPixel[],
-  strategyId: ColorStrategyId = defaultStrategyId,
-): PixelInfo[] {
-  const matchFn = getMatchFn(strategyId)
-  return raw.map(p => ({
-    x: p.x,
-    y: p.y,
-    color: matchFn(p.r, p.g, p.b, allBeadColors),
-  }))
-}
-
 /** 从拼豆像素统计颜色用量 */
 export function computeColorInfo(pixels: PixelInfo[]): { color: BeadColor; count: number }[] {
   const map = new Map<string, { color: BeadColor; count: number }>()
