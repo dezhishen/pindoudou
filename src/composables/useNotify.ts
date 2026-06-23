@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { $t } from '@/i18n'
 
 export interface ToastMessage {
   id: number
@@ -49,8 +50,8 @@ export function showConfirm(options: ConfirmOptions): Promise<boolean> {
     confirmState.value = {
       visible: true,
       text: options.text,
-      confirmText: options.confirmText || '确定',
-      cancelText: options.cancelText || '取消',
+      confirmText: options.confirmText || $t('notify.confirm'),
+      cancelText: options.cancelText || $t('notify.cancel'),
       type: options.type || 'normal',
       resolve,
     }

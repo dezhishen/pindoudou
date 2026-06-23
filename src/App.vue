@@ -2,17 +2,23 @@
   <div class="flex flex-col min-h-screen bg-gray-100">
     <header class="bg-gradient-to-r from-primary to-green-400 text-white py-3 shadow-md">
       <div class="px-3 flex items-center gap-3">
-        <h1 class="text-lg font-bold flex items-center gap-2"><span class="text-xl">🧩</span>拼豆图案生成器</h1>
-        <button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs font-medium hover:bg-white/25 transition" @click="openHistory">📋 历史</button>
-        <button v-if="result" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs font-medium hover:bg-white/25 transition" @click="showUploadModal = true">🔄 重新上传</button>
+        <h1 class="text-lg font-bold flex items-center gap-2"><span class="text-xl">🧩</span>{{ $t('app.title') }}</h1>
+        <button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs font-medium hover:bg-white/25 transition" @click="openHistory">{{ $t('app.history') }}</button>
+        <button v-if="result" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs font-medium hover:bg-white/25 transition" @click="showUploadModal = true">{{ $t('app.reupload') }}</button>
         <span class="flex-1" />
+        <div class="relative">
+          <button class="px-2 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs hover:bg-white/25 transition" @click="showLangMenu = !showLangMenu">{{ $t('lang.switch') }}</button>
+          <div v-if="showLangMenu" class="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50">
+            <button v-for="l in locales" :key="l.value" class="block w-full px-4 py-2 text-xs text-left hover:bg-gray-50 transition" :class="locale === l.value ? 'text-primary font-medium' : 'text-gray-600'" @click="setLocale(l.value); showLangMenu = false">{{ l.label }}</button>
+          </div>
+        </div>
       </div>
     </header>
 
     <main class="flex-1 py-2 px-3 w-full">
       <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-4 text-sm">
         {{ error }}
-        <div class="mt-3"><button class="btn btn-outline" @click="error = ''">关闭</button></div>
+        <div class="mt-3"><button class="btn btn-outline" @click="error = ''">{{ $t('app.close') }}</button></div>
       </div>
 
       <div class="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-2 items-start relative">
@@ -25,9 +31,9 @@
         <div class="flex flex-col gap-3 sticky top-4">
           <div class="card">
             <template v-if="imagePreviewUrl">
-              <h3 class="text-sm font-medium mb-2">🖼️ 原图</h3>
+              <h3 class="text-sm font-medium mb-2">{{ $t('sidebar.original') }}</h3>
               <div class="rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
-                <img :src="imagePreviewUrl" alt="原图" class="max-w-full h-auto block" />
+                <img :src="imagePreviewUrl" :alt="$t('sidebar.altOriginal')" class="max-w-full h-auto block" />
               </div>
             </template>
             <template v-else>
@@ -35,7 +41,7 @@
             </template>
           </div>
           <div class="card">
-            <h3 class="text-sm font-medium mb-2">🎯 颜色匹配策略</h3>
+            <h3 class="text-sm font-medium mb-2">{{ $t('sidebar.strategy') }}</h3>
             <div class="flex flex-col gap-1">
               <label v-for="s in strategies" :key="s.id"
                 class="flex items-center gap-2 px-2.5 py-2 rounded-lg cursor-pointer transition text-xs"
@@ -45,16 +51,16 @@
                   class="accent-primary"
                   @change="currentId === s.id || setStrategy(s.id)" />
                 <div class="flex flex-col min-w-0">
-                  <span class="font-medium">{{ s.name }}</span>
-                  <span class="text-[10px] text-gray-400 leading-tight">{{ s.description }}</span>
+                  <span class="font-medium">{{ $t(`strategy.${s.id}`) }}</span>
+                  <span class="text-[10px] text-gray-400 leading-tight">{{ $t(`strategy.${s.id}Desc`) }}</span>
                 </div>
               </label>
             </div>
           </div>
           <div v-if="transparentIndices.length > 0" class="card">
             <div class="flex items-center justify-between mb-2">
-              <h3 class="text-sm font-medium">🔲 透明填充</h3>
-              <span class="text-xs text-gray-400">{{ transparentIndices.length }} 颗</span>
+              <h3 class="text-sm font-medium">{{ $t('sidebar.transparent') }}</h3>
+              <span class="text-xs text-gray-400">{{ $t('sidebar.transparentCount', { count: transparentIndices.length }) }}</span>
             </div>
             <div class="flex gap-1.5 flex-wrap">
               <button v-for="c in fillPresets" :key="c"
@@ -70,11 +76,11 @@
           </div>
           <div v-if="result" class="card">
             <div class="flex items-center justify-between mb-2">
-              <h3 class="text-sm font-medium">🎨 颜色用量</h3>
-              <button class="text-xs text-gray-400 border border-gray-200 rounded px-2 py-0.5 hover:border-primary hover:text-primary transition" @click="drawerOpen = !drawerOpen">{{ drawerOpen ? '收起 ▲' : '全部 ▼' }}</button>
+              <h3 class="text-sm font-medium">{{ $t('sidebar.colorUsage') }}</h3>
+              <button class="text-xs text-gray-400 border border-gray-200 rounded px-2 py-0.5 hover:border-primary hover:text-primary transition" @click="drawerOpen = !drawerOpen">{{ drawerOpen ? $t('sidebar.collapse') : $t('sidebar.expand') }}</button>
             </div>
             <div class="flex flex-wrap gap-1">
-              <div v-for="c in (colorInfo || []).slice(0, drawerOpen ? undefined : 8)" :key="c.color.code" class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-gray-50 cursor-pointer hover:bg-green-50 text-xs" :title="`${c.color.name}: ${c.count}颗`" @click="selectColorInGrid(c.color.code)">
+              <div v-for="c in (colorInfo || []).slice(0, drawerOpen ? undefined : 8)" :key="c.color.code" class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-gray-50 cursor-pointer hover:bg-green-50 text-xs" :title="$t('app.copyFormat', { name: c.color.name, hex: c.color.hex, count: c.count })" @click="selectColorInGrid(c.color.code)">
                 <span class="w-3 h-3 rounded-sm border border-black/10 flex-shrink-0" :style="{ background: c.color.hex }" />
                 <span class="font-semibold text-primary text-xs">{{ c.count }}</span>
               </div>
@@ -84,14 +90,14 @@
                 <span class="w-3 h-3 rounded-sm border border-black/10" :style="{ background: c.color.hex }" />
                 <span class="flex-1 font-medium">{{ c.color.name }}</span>
                 <span class="text-gray-400">{{ c.color.hex }}</span>
-                <span class="font-semibold text-primary">{{ c.count }}颗</span>
+                <span class="font-semibold text-primary">{{ $t('app.copyFormat', { name: '', hex: '', count: c.count }).replace(/^.*:\s*/, '') }}{{ $t('app.copyFormat', { name: '', hex: '', count: 0 }).slice(-1) }}</span>
               </div>
             </div>
           </div>
           <div v-if="result" class="card flex flex-col gap-2">
             <div class="relative flex">
               <button class="btn btn-primary flex-1 rounded-r-none justify-center" @click="downloadGrid">
-                📥 下载 PNG
+                {{ $t('sidebar.downloadPNG') }}
               </button>
               <button class="btn btn-primary rounded-l-none border-l border-white/30 px-2.5" @click="showDownloadMenu = !showDownloadMenu">
                 <span class="text-[10px]">▼</span>
@@ -99,12 +105,12 @@
               <div v-if="showDownloadMenu" class="fixed inset-0 z-40" @click="showDownloadMenu = false" />
               <div v-if="showDownloadMenu" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
                 <button class="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 flex items-center gap-2 transition" @click="downloadSVGGrid(); showDownloadMenu = false">
-                  📐 下载 SVG 矢量图
+                  {{ $t('sidebar.downloadSVG') }}
                 </button>
               </div>
             </div>
-            <button class="btn btn-outline btn-block" @click="copyPaletteText">📋 复制颜色清单</button>
-            <button class="btn btn-ghost btn-block" @click="resetAll">🔄 重新上传</button>
+            <button class="btn btn-outline btn-block" @click="copyPaletteText">{{ $t('sidebar.copyPalette') }}</button>
+            <button class="btn btn-ghost btn-block" @click="resetAll">{{ $t('app.reupload') }}</button>
           </div>
         </div>
         <div class="min-w-0">
@@ -120,8 +126,8 @@
       <div v-if="showUploadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showUploadModal = false">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
           <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
-            <h3 class="text-base font-bold">📤 上传图片</h3>
-            <button class="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 text-lg transition" @click="showUploadModal = false">✕</button>
+            <h3 class="text-base font-bold">{{ $t('upload.title') }}</h3>
+            <button class="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 text-lg transition" @click="showUploadModal = false">{{ $t('upload.close') }}</button>
           </div>
           <div class="p-4">
             <ImageUploader @file-selected="onModalUpload" />
@@ -135,21 +141,21 @@
       <div v-if="showHistory" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showHistory = false">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col overflow-hidden">
           <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 shrink-0">
-            <h3 class="text-base font-bold">📋 历史记录</h3>
+            <h3 class="text-base font-bold">{{ $t('history.title') }}</h3>
             <div class="flex items-center gap-2">
-              <button v-if="checkedIds.size > 0" class="text-[10px] px-2 py-1 rounded bg-primary text-white hover:bg-primary-dark transition" @click="exportChecked">📤 导出({{ checkedIds.size }})</button>
+              <button v-if="checkedIds.size > 0" class="text-[10px] px-2 py-1 rounded bg-primary text-white hover:bg-primary-dark transition" @click="exportChecked">{{ $t('history.export', { count: checkedIds.size }) }}</button>
               <label class="text-[10px] px-2 py-1 rounded border border-gray-300 text-gray-500 hover:border-primary hover:text-primary transition cursor-pointer">
-                📥 导入
+                {{ $t('history.import') }}
                 <input type="file" accept=".json" class="hidden" @change="onImportFile" />
               </label>
-              <button class="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 text-lg transition" @click="showHistory = false">✕</button>
+              <button class="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 text-lg transition" @click="showHistory = false">{{ $t('upload.close') }}</button>
             </div>
           </div>
           <div class="p-4 overflow-y-auto flex-1">
             <div v-if="historyList.length === 0" class="text-center py-10 text-gray-400">
               <span class="text-4xl block mb-2">📭</span>
-              <p class="text-sm">暂无历史记录</p>
-              <p class="text-xs mt-1">可点击 📥 导入之前导出的记录</p>
+              <p class="text-sm">{{ $t('history.empty') }}</p>
+              <p class="text-xs mt-1">{{ $t('history.emptyHint') }}</p>
             </div>
             <div v-else class="flex flex-col gap-2">
               <div v-for="h in historyList" :key="h.id"
@@ -164,20 +170,20 @@
                 <span class="text-[10px] text-gray-400 shrink-0">{{ h.originalWidth }}×{{ h.originalHeight }}</span>
                 <button class="text-sm shrink-0 transition opacity-40 group-hover:opacity-100"
                   :class="h.favorite ? 'text-yellow-500' : 'text-gray-300 hover:text-yellow-400'"
-                  :title="h.favorite ? '取消收藏' : '收藏'"
+                  :title="h.favorite ? $t('history.unfav') : $t('history.fav')"
                   @click.stop="toggleFav(h.id)">{{ h.favorite ? '⭐' : '☆' }}</button>
               </div>
             </div>
           </div>
           <div v-if="historyList.length > 0" class="px-4 py-2 border-t border-gray-100 shrink-0 flex items-center justify-between">
-            <button class="text-xs text-red-400 hover:text-red-600 transition" @click="clearAllHistory">清空非收藏记录</button>
-            <span v-if="historyFavCount > 0" class="text-[10px] text-yellow-500">⭐ {{ historyFavCount }} 条收藏</span>
+            <button class="text-xs text-red-400 hover:text-red-600 transition" @click="clearAllHistory">{{ $t('history.clear') }}</button>
+            <span v-if="historyFavCount > 0" class="text-[10px] text-yellow-500">{{ $t('history.favCount', { count: historyFavCount }) }}</span>
           </div>
         </div>
       </div>
     </Teleport>
 
-    <footer class="text-center py-3 text-xs text-gray-400 border-t border-gray-200 bg-white">🧩 拼豆图案生成器 &copy; {{ new Date().getFullYear() }}</footer>
+    <footer class="text-center py-3 text-xs text-gray-400 border-t border-gray-200 bg-white">{{ $t('app.footer') }} &copy; {{ new Date().getFullYear() }}</footer>
 
     <NotifyLayer />
   </div>
@@ -191,6 +197,7 @@ import NotifyLayer from '@/components/NotifyLayer.vue'
 import { processImage } from '@/utils/imageProcessor'
 import { saveHistory, getHistoryList, getHistoryRecord, clearHistory, toggleFavorite, exportRecords, importRecords, type HistoryMeta } from '@/utils/history'
 import { showToast, showConfirm } from '@/composables/useNotify'
+import { $t, locale, setLocale, type Locale } from '@/i18n'
 import type { ProcessResult, RawPixel, ColorStrategyId } from '@/types'
 import type { BeadColor } from '@/types'
 import { useColorStrategy } from '@/composables/useColorStrategy'
@@ -204,9 +211,16 @@ const drawerOpen = ref(false)
 const showDownloadMenu = ref(false)
 const showUploadModal = ref(false)
 const showHistory = ref(false)
+const showLangMenu = ref(false)
 const historyList = ref<HistoryMeta[]>([])
 const checkedIds = ref<Set<number>>(new Set())
 const historyFavCount = ref(0)
+
+const locales: { label: string; value: Locale }[] = [
+  { label: '简体中文', value: 'zh-CN' },
+  { label: 'English', value: 'en' },
+  { label: '繁體中文', value: 'zh-TW' },
+]
 
 function toggleCheck(id: number) {
   const s = new Set(checkedIds.value)
@@ -236,7 +250,7 @@ function onModalUpload(file: File) {
 }
 
 async function processAndSetResult(file: File) {
-  loading.value = true; loadingText.value = '正在解析图片...'; error.value = ''
+  loading.value = true; loadingText.value = $t('app.loading'); error.value = ''
   try {
     const data = await processImage(file, 256, fillColor.value, currentId.value)
     result.value = {
@@ -262,7 +276,7 @@ async function processAndSetResult(file: File) {
         fillColor: fillColor.value,
       })
     }
-  } catch (err: any) { error.value = err.message || '解析图片失败' }
+  } catch (err: any) { error.value = (err.message || $t('app.unknownError')) }
   finally { loading.value = false }
 }
 
@@ -320,10 +334,10 @@ async function onImportFile(e: Event) {
   if (!file) return
   try {
     const count = await importRecords(file)
-    showToast(`成功导入 ${count} 条记录`, 'success')
+    showToast($t('app.importSuccess', { count }), 'success')
     await openHistory()
   } catch (err: any) {
-    showToast('导入失败: ' + (err.message || '未知错误'), 'error')
+    showToast($t('app.importError') + (err.message || $t('app.unknownError')), 'error')
   }
   input.value = ''
 }
@@ -331,7 +345,7 @@ async function onImportFile(e: Event) {
 async function loadHistory(id: number) {
   const record = await getHistoryRecord(id)
   if (!record) return
-  loading.value = true; loadingText.value = '正在加载历史记录...'; error.value = ''
+  loading.value = true; loadingText.value = $t('app.loadingHistory'); error.value = ''
   try {
     imagePreviewUrl.value = record.thumbnail
     currentFileName.value = record.fileName
@@ -343,23 +357,23 @@ async function loadHistory(id: number) {
       pixels: JSON.parse(record.pixelsJson),
     }
     transparentIndices.value = JSON.parse(record.transparentIndicesJson)
-  } catch (err: any) { error.value = '加载历史记录失败: ' + err.message }
+  } catch (err: any) { error.value = $t('app.loadHistoryError') + err.message }
   finally { loading.value = false }
 }
 
 async function clearAllHistory() {
   const favCount = historyList.value.filter(h => h.favorite).length
-  let msg = '确定要清除非收藏的历史记录吗？'
+  let msg = $t('app.clearConfirm')
   if (favCount > 0) {
-    msg += '\n\n⚠️ ' + favCount + ' 条收藏记录将保留\n注意：数据仅存储在本地浏览器中\n清除浏览器数据将无法恢复！'
+    msg += '\n\n' + $t('app.clearFavWarning', { count: favCount })
   }
   const ok = await showConfirm({ text: msg, type: 'danger' })
   if (!ok) return
   const result = await clearHistory()
   if (favCount > 0) {
-    showToast(`已清空 ${result.deleted} 条记录，保留 ${result.kept} 条收藏`, 'success')
+    showToast($t('app.clearResult', { deleted: result.deleted, kept: result.kept }), 'success')
   } else {
-    showToast(`已清空 ${result.deleted} 条记录`, 'success')
+    showToast($t('app.clearResultNoFav', { deleted: result.deleted }), 'success')
   }
   await openHistory()
 }
@@ -386,6 +400,6 @@ function changeFillColor(color: string) {
 function onGridInfo(info: { colorInfo: { color: BeadColor; count: number }[] }) { colorInfo.value = info.colorInfo }
 function downloadGrid() { gridRef.value?.downloadPNG() }
 function downloadSVGGrid() { gridRef.value?.downloadSVG() }
-function copyPaletteText() { if (colorInfo.value.length) navigator.clipboard.writeText(colorInfo.value.map(c => `${c.color.name} (${c.color.hex}): ${c.count}颗`).join('\n')) }
+function copyPaletteText() { if (colorInfo.value.length) navigator.clipboard.writeText(colorInfo.value.map(c => $t('app.copyFormat', { name: c.color.name, hex: c.color.hex, count: c.count })).join('\n')) }
 function selectColorInGrid(code: string) { gridRef.value?.selectByColor(code) }
 </script>

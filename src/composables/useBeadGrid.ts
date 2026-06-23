@@ -2,6 +2,7 @@ import { ref, computed, watch, isRef, type Ref } from 'vue'
 import type { PixelInfo, BeadColor, RawPixel, ColorStrategyId } from '@/types'
 import { allBeadColors, findClosestBeadColor, computeColorInfo, mergeFragmentedColors } from '@/utils/colors'
 import { defaultStrategyId } from '@/utils/colorStrategies'
+import { $t } from '@/i18n'
 
 /**
  * 网格交互状态
@@ -138,7 +139,7 @@ export function useBeadGrid(
 
   const densityLabel = computed(() => {
     const pct = maxStep.value <= 1 ? 0 : (step.value - 1) / (maxStep.value - 1)
-    return pct < 0.33 ? '精细' : pct < 0.66 ? '适中' : '粗糙'
+    return pct < 0.33 ? $t('density.fine') : pct < 0.66 ? $t('density.medium') : $t('density.coarse')
   })
 
   /**

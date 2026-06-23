@@ -3,146 +3,146 @@
     <!-- 信息栏 -->
     <div class="flex gap-2 flex-wrap">
       <div class="flex flex-col items-center bg-green-50 px-3 py-1.5 rounded-lg">
-        <span class="text-xs text-gray-500">尺寸</span>
+        <span class="text-xs text-gray-500">{{ $t('grid.size') }}</span>
         <span class="text-sm font-bold text-primary">{{ displayCols }}×{{ displayRows }}</span>
       </div>
       <div class="flex flex-col items-center bg-green-50 px-3 py-1.5 rounded-lg">
-        <span class="text-xs text-gray-500">总颗数</span>
+        <span class="text-xs text-gray-500">{{ $t('grid.total') }}</span>
         <span class="text-sm font-bold text-primary">{{ displayBeads.length }}</span>
       </div>
       <div class="flex flex-col items-center bg-green-50 px-3 py-1.5 rounded-lg">
-        <span class="text-xs text-gray-500">颜色数</span>
+        <span class="text-xs text-gray-500">{{ $t('grid.colors') }}</span>
         <span class="text-sm font-bold text-primary">{{ stats.uniqueColorCount }}</span>
       </div>
       <div class="flex flex-col items-center bg-green-50 px-3 py-1.5 rounded-lg">
-        <span class="text-xs text-gray-500">选中</span>
+        <span class="text-xs text-gray-500">{{ $t('grid.selected') }}</span>
         <span class="text-sm font-bold text-primary">{{ selectedIndices.size }}</span>
       </div>
       <div v-if="realSizeMode && realCellPx" class="flex flex-col items-center bg-orange-50 px-3 py-1.5 rounded-lg">
-        <span class="text-xs text-orange-500">📏 实图</span>
-        <span class="text-sm font-bold text-orange-600">{{ realCellPx }}px/颗</span>
+        <span class="text-xs text-orange-500">{{ $t('grid.realSize') }}</span>
+        <span class="text-sm font-bold text-orange-600">{{ $t('grid.realSizeUnit', { px: realCellPx }) }}</span>
       </div>
     </div>
 
     <!-- 豆子尺寸切换 -->
     <div class="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2 -mt-0.5">
-      <span class="text-xs text-gray-500 whitespace-nowrap">豆子尺寸</span>
+      <span class="text-xs text-gray-500 whitespace-nowrap">{{ $t('grid.beadSize') }}</span>
       <div class="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
         <button
           class="px-4 py-1.5 text-xs font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
           :class="beadSizeMM === 5 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
-          @click="beadSizeMM = 5">5mm 大号</button>
+          @click="beadSizeMM = 5">{{ $t('grid.beadLarge') }}</button>
         <button
           class="px-4 py-1.5 text-xs font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
           :class="beadSizeMM === 2.6 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
-          @click="beadSizeMM = 2.6">2.6mm 小号</button>
+          @click="beadSizeMM = 2.6">{{ $t('grid.beadSmall') }}</button>
       </div>
       <span class="text-xs font-semibold text-primary whitespace-nowrap">≈ {{ physicalSize.label }}</span>
-      <span v-if="beadSizeMM === 5" class="text-[10px] text-gray-400">（小号≈{{ Math.round(displayCols * 2.6) }}×{{ Math.round(displayRows * 2.6) }}mm）</span>
-      <span v-else class="text-[10px] text-gray-400">（大号≈{{ Math.round(displayCols * 5) }}×{{ Math.round(displayRows * 5) }}mm）</span>
+      <span v-if="beadSizeMM === 5" class="text-[10px] text-gray-400">{{ $t('grid.smallHint', { w: Math.round(displayCols * 2.6), h: Math.round(displayRows * 2.6) }) }}</span>
+      <span v-else class="text-[10px] text-gray-400">{{ $t('grid.largeHint', { w: Math.round(displayCols * 5), h: Math.round(displayRows * 5) }) }}</span>
     </div>
 
     <!-- 拼豆宽度 -->
     <div class="flex items-center gap-3 flex-wrap">
       <div class="flex items-center gap-1.5">
-        <span class="text-xs text-gray-500">拼豆宽度</span>
+        <span class="text-xs text-gray-500">{{ $t('grid.width') }}</span>
         <div class="flex gap-1 flex-wrap">
           <button v-for="c in beadCountPresets" :key="c"
             class="px-2.5 py-1 rounded-md border text-xs font-medium transition cursor-pointer"
             :class="displayCols === c ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary'"
             @click="c !== displayCols && setBeadCount(c)">{{ c }}</button>
         </div>
-        <span class="text-xs text-gray-400">颗</span>
+        <span class="text-xs text-gray-400">{{ $t('grid.widthUnit') }}</span>
       </div>
     </div>
 
     <!-- 单元格缩放 + 实图 + 展示模式 -->
     <div class="flex items-center gap-3 flex-wrap">
       <div class="flex items-center gap-1.5">
-        <span class="text-xs text-gray-500 whitespace-nowrap">单元格</span>
+        <span class="text-xs text-gray-500 whitespace-nowrap">{{ $t('grid.cellSize') }}</span>
         <div class="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
           <button
             class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0 flex items-center gap-1"
             :class="!realSizeMode && cellSize === 6 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
             @click="setCellSize(6)"
-            title="小尺寸（6px/格）">
+            :title="$t('grid.cellSmallTip')">
             <span class="inline-block w-2 h-2 rounded-sm border border-current opacity-60" />
-            小
+            {{ $t('grid.cellSmall') }}
           </button>
           <button
             class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0 flex items-center gap-1"
             :class="!realSizeMode && cellSize === 8 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
             @click="setCellSize(8)"
-            title="中尺寸（8px/格）">
+            :title="$t('grid.cellMediumTip')">
             <span class="inline-block w-2.5 h-2.5 rounded-sm border border-current opacity-60" />
-            中
+            {{ $t('grid.cellMedium') }}
           </button>
           <button
             class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0 flex items-center gap-1"
             :class="!realSizeMode && cellSize === 12 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
             @click="setCellSize(12)"
-            title="大尺寸（12px/格）">
+            :title="$t('grid.cellLargeTip')">
             <span class="inline-block w-3 h-3 rounded-sm border border-current opacity-60" />
-            大
+            {{ $t('grid.cellLarge') }}
           </button>
           <button
             class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer flex items-center gap-1"
             :class="realSizeMode ? 'bg-orange-500 text-white' : 'text-gray-600 hover:bg-gray-100'"
             @click="realSizeMode = !realSizeMode"
-            title="按实际物理尺寸显示">
+            :title="$t('grid.cellRealTip')">
             <span class="inline-block w-3 h-3 rounded-sm border-2 border-current" />
-            实图
+            {{ $t('grid.cellReal') }}
           </button>
         </div>
       </div>
 
       <div class="flex items-center gap-1.5">
-        <span class="text-xs text-gray-500 whitespace-nowrap">展示</span>
+        <span class="text-xs text-gray-500 whitespace-nowrap">{{ $t('grid.display') }}</span>
         <div class="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
           <button
             class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
             :class="displayMode === 'color' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
             @click="displayMode = 'color'"
-            title="仅显示拼豆颜色">
-            🎨 颜色
+            :title="$t('grid.modeColorTip')">
+            {{ $t('grid.modeColor') }}
           </button>
           <button
             class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
             :class="displayMode === 'both' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
             @click="displayMode = 'both'"
-            title="颜色网格 + 坐标标尺">
-            📐 标尺
+            :title="$t('grid.modeRulerTip')">
+            {{ $t('grid.modeRuler') }}
           </button>
           <button
             class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
             :class="displayMode === 'coords' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
             @click="displayMode = 'coords'"
-            title="单元格显示坐标数字">
-            🔢 坐标格
+            :title="$t('grid.modeCoordsTip')">
+            {{ $t('grid.modeCoords') }}
           </button>
         </div>
       </div>
     </div>
 
-    <!-- 实图模式：屏幕参数设置（仅实图激活时显示） -->
+    <!-- 实图模式：屏幕参数设置 -->
     <div v-if="realSizeMode" class="flex items-center gap-2 flex-wrap bg-orange-50 rounded-lg px-3 py-2">
-      <span class="text-xs text-gray-500 whitespace-nowrap">屏幕</span>
+      <span class="text-xs text-gray-500 whitespace-nowrap">{{ $t('grid.screen') }}</span>
       <select v-model.number="screenDiagonal" class="w-14 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded bg-white focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none appearance-none cursor-pointer">
-        <option :value="null" disabled>尺寸</option>
+        <option :value="null" disabled>{{ $t('grid.screenSize') }}</option>
         <option v-for="s in commonScreenSizes" :key="s" :value="s">{{ s }}"</option>
       </select>
-      <input v-model.number="screenResW" type="number" step="1" min="1" :placeholder="detectedResW ? String(detectedResW) : '宽'"
+      <input v-model.number="screenResW" type="number" step="1" min="1" :placeholder="detectedResW ? String(detectedResW) : $t('grid.screenWidth')"
         class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
       <span class="text-[10px] text-gray-400">×</span>
-      <input v-model.number="screenResH" type="number" step="1" min="1" :placeholder="detectedResH ? String(detectedResH) : '高'"
+      <input v-model.number="screenResH" type="number" step="1" min="1" :placeholder="detectedResH ? String(detectedResH) : $t('grid.screenHeight')"
         class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
-      <span v-if="screenPPI" class="text-[10px] text-gray-500">PPI≈{{ screenPPI }}<span v-if="dpr !== 1" class="text-orange-400"> DPR×{{ dpr }}</span></span>
-      <span v-else class="text-[10px] text-orange-400">填写完整参数</span>
+      <span v-if="screenPPI" class="text-[10px] text-gray-500">{{ $t('grid.screenPPI', { ppi: screenPPI }) }}<span v-if="dpr !== 1" class="text-orange-400">{{ $t('grid.screenDPR', { dpr }) }}</span></span>
+      <span v-else class="text-[10px] text-orange-400">{{ $t('grid.screenIncomplete') }}</span>
       <div class="flex gap-1 flex-wrap">
         <button v-for="p in screenPresets" :key="p.label"
           class="px-1.5 py-0.5 text-[9px] rounded border transition cursor-pointer whitespace-nowrap"
           :class="(p.d === 0 ? (screenResW === detectedResW && screenResH === detectedResH) : screenDiagonal === p.d && screenResW === p.w && screenResH === p.h) ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-500 border-gray-200 hover:border-orange-400 hover:text-orange-500'"
-          @click="applyScreenPreset(p)">{{ p.label }}</button>
+          @click="applyScreenPreset(p)">{{ i18nPresetLabel(p.label) }}</button>
       </div>
     </div>
 
@@ -203,7 +203,7 @@
     <!-- 颜色编辑器 -->
     <div v-if="editingIndex !== null" class="border border-gray-200 rounded-lg bg-white overflow-hidden" @click.stop>
       <div class="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200">
-        <span class="text-xs font-medium">🎨 {{ editingIndex === -1 ? `批量修改 (${selectedIndices.size}颗)` : `第 ${editingIndex + 1} 颗` }}</span>
+        <span class="text-xs font-medium">🎨 {{ editingIndex === -1 ? $t('grid.editorBatch', { count: selectedIndices.size }) : $t('grid.editorSingle', { index: editingIndex + 1 }) }}</span>
         <button class="w-6 h-6 rounded-full border-none bg-transparent cursor-pointer flex items-center justify-center text-sm hover:bg-gray-200" @click="editingIndex = null">✕</button>
       </div>
       <div class="flex flex-wrap gap-1 p-2.5 max-h-44 overflow-y-auto">
@@ -222,6 +222,7 @@ import { allBeadColors } from '@/utils/colors'
 import { useBeadGrid } from '@/composables/useBeadGrid'
 import type { DisplayBead } from '@/composables/useBeadGrid'
 import { defaultStrategyId } from '@/utils/colorStrategies'
+import { $t } from '@/i18n'
 
 const props = defineProps<{
   pixels: RawPixel[]
@@ -304,6 +305,17 @@ function applyScreenPreset(p: typeof screenPresets[number]) {
     screenResW.value = p.w
     screenResH.value = p.h
   }
+}
+
+const presetsKeyMap: Record<string, string> = {
+  '🔍自动': 'grid.presetAuto',
+  '14"FHD': 'grid.preset14FHD',
+  '24"FHD': 'grid.preset24FHD',
+  '27"2K': 'grid.preset272K',
+  '27"4K': 'grid.preset274K',
+}
+function i18nPresetLabel(label: string) {
+  return $t(presetsKeyMap[label] || label)
 }
 
 /** 设置单元格尺寸（若在实图模式则先退出） */
