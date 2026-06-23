@@ -62,22 +62,37 @@
         <span class="text-xs text-gray-500 whitespace-nowrap">单元格</span>
         <div class="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
           <button
-            class="px-2 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
+            class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0 flex items-center gap-1"
             :class="!realSizeMode && cellSize === 6 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
-            @click="setCellSize(6)">小</button>
+            @click="setCellSize(6)"
+            title="小尺寸（6px/格）">
+            <span class="inline-block w-2 h-2 rounded-sm border border-current opacity-60" />
+            小
+          </button>
           <button
-            class="px-2 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
+            class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0 flex items-center gap-1"
             :class="!realSizeMode && cellSize === 8 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
-            @click="setCellSize(8)">中</button>
+            @click="setCellSize(8)"
+            title="中尺寸（8px/格）">
+            <span class="inline-block w-2.5 h-2.5 rounded-sm border border-current opacity-60" />
+            中
+          </button>
           <button
-            class="px-2 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
+            class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0 flex items-center gap-1"
             :class="!realSizeMode && cellSize === 12 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
-            @click="setCellSize(12)">大</button>
+            @click="setCellSize(12)"
+            title="大尺寸（12px/格）">
+            <span class="inline-block w-3 h-3 rounded-sm border border-current opacity-60" />
+            大
+          </button>
           <button
-            class="px-2 py-1 text-[10px] font-medium transition cursor-pointer"
+            class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer flex items-center gap-1"
             :class="realSizeMode ? 'bg-orange-500 text-white' : 'text-gray-600 hover:bg-gray-100'"
             @click="realSizeMode = !realSizeMode"
-            title="实际物理尺寸">📏</button>
+            title="按实际物理尺寸显示">
+            <span class="inline-block w-3 h-3 rounded-sm border-2 border-current" />
+            实图
+          </button>
         </div>
       </div>
 
