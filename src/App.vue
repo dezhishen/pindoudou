@@ -3,13 +3,19 @@
     <header class="bg-gradient-to-r from-primary to-green-400 text-white py-3 shadow-md">
       <div class="px-3 flex items-center justify-between">
         <h1 class="text-lg font-bold flex items-center gap-2"><span class="text-xl">🧩</span>拼豆图案生成器</h1>
-        <button v-if="step === 'result'" class="flex items-center gap-1.5 px-4 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-sm font-medium hover:bg-white/25 transition" @click="resetAll">🔄 重新上传</button>
+        <div class="flex items-center gap-2">
+          <button v-if="result" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs font-medium hover:bg-white/25 transition" @click="resetAll">🔄 重新上传</button>
+          <button class="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-white/20 text-white text-sm font-medium hover:bg-white/30 transition" @click="showUpload = true">📤 上传图片</button>
+        </div>
       </div>
     </header>
 
     <main class="flex-1 py-2 px-3 w-full">
-      <div v-if="step === 'upload'">
-        <ImageUploader @file-selected="handleFile" />
+      <!-- 空状态 -->
+      <div v-if="!result && !loading && !error" class="flex flex-col items-center justify-center py-20 text-gray-400">
+        <span class="text-6xl mb-4">🧩</span>
+        <p class="text-lg mb-2">点击「📤 上传图片」开始生成拼豆图案</p>
+        <p class="text-sm">支持 JPG、PNG、GIF、WEBP 格式</p>
       </div>
 
       <div v-if="loading" class="text-center py-10">
@@ -19,10 +25,10 @@
 
       <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-4 text-sm">
         {{ error }}
-        <div class="mt-3"><button class="btn btn-outline" @click="resetAll">重新上传</button></div>
+        <div class="mt-3"><button class="btn btn-outline" @click="error = ''; showUpload = true">重新上传</button></div>
       </div>
 
-      <div v-if="step === 'result' && result" class="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-2 items-start">
+      <div v-if="result" class="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-2 items-start">
         <div class="flex flex-col gap-3 sticky top-4">
           <div class="card" v-if="imagePreviewUrl">
             <h3 class="text-sm font-medium mb-2">🖼️ 原图</h3>
@@ -95,7 +101,6 @@
               <button class="btn btn-primary rounded-l-none border-l border-white/30 px-2.5" @click="showDownloadMenu = !showDownloadMenu">
                 <span class="text-[10px]">▼</span>
               </button>
-              <!-- 点击外部遮罩 -->
               <div v-if="showDownloadMenu" class="fixed inset-0 z-40" @click="showDownloadMenu = false" />
               <div v-if="showDownloadMenu" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
                 <button class="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 flex items-center gap-2 transition" @click="downloadSVGGrid(); showDownloadMenu = false">
@@ -115,6 +120,21 @@
       </div>
     </main>
 
+    <!-- 上传弹框 -->
+    <Teleport to="body">
+      <div v-if="showUpload" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showUpload = false">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
+          <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+            <h3 class="text-base font-bold">📤 上传图片</h3>
+            <button class="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 text-lg transition" @click="showUpload = false">✕</button>
+          </div>
+          <div class="p-4">
+            <ImageUploader @file-selected="onUploadFile" />
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <footer class="text-center py-3 text-xs text-gray-400 border-t border-gray-200 bg-white">🧩 拼豆图案生成器 &copy; {{ new Date().getFullYear() }}</footer>
   </div>
 </template>
@@ -128,8 +148,6 @@ import type { ProcessResult, RawPixel, ColorStrategyId } from '@/types'
 import type { BeadColor } from '@/types'
 import { useColorStrategy } from '@/composables/useColorStrategy'
 
-type Step = 'upload' | 'result'
-const step = ref<Step>('upload')
 const loading = ref(false)
 const loadingText = ref('')
 const error = ref('')
@@ -137,6 +155,7 @@ const result = ref<ProcessResult | null>(null)
 const imagePreviewUrl = ref('')
 const drawerOpen = ref(false)
 const showDownloadMenu = ref(false)
+const showUpload = ref(false)
 
 const gridRef = ref<InstanceType<typeof BeadGrid>>()
 const colorInfo = ref<{ color: BeadColor; count: number }[]>([])
@@ -149,6 +168,11 @@ const transparentIndices = ref<number[]>([])
 const fillColor = ref('#FFFFFF')
 const fillPresets = ['#FFFFFF', '#EEEEEE', '#CCCCCC', '#000000', '#FF0000', '#00AAFF', '#FFD700']
 
+function onUploadFile(file: File) {
+  showUpload.value = false
+  handleFile(file)
+}
+
 async function handleFile(file: File) {
   imagePreviewUrl.value = URL.createObjectURL(file)
   loading.value = true; loadingText.value = '正在解析图片...'; error.value = ''
@@ -160,15 +184,15 @@ async function handleFile(file: File) {
       pixels: data.pixels.map(p => ({ x: p.x, y: p.y, r: p.r, g: p.g, b: p.b })),
     }
     transparentIndices.value = data.transparentIndices
-    step.value = 'result'
-  } catch (err: any) { error.value = err.message || '解析图片失败'; step.value = 'upload' }
+  } catch (err: any) { error.value = err.message || '解析图片失败' }
   finally { loading.value = false }
 }
 
 function resetAll() {
-  step.value = 'upload'; loading.value = false; error.value = ''; result.value = null; drawerOpen.value = false
+  loading.value = false; error.value = ''; result.value = null; drawerOpen.value = false
   transparentIndices.value = []
   if (imagePreviewUrl.value) { URL.revokeObjectURL(imagePreviewUrl.value); imagePreviewUrl.value = '' }
+  showUpload.value = true
 }
 function changeFillColor(color: string) {
   fillColor.value = color
