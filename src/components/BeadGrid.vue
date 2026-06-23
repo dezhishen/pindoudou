@@ -115,17 +115,17 @@
       <input v-model.number="screenDiagonal" type="number" step="0.1" min="1" max="100" placeholder="尺寸"
         class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
       <span class="text-[10px] text-gray-400">英寸</span>
-      <input v-model.number="screenResW" type="number" step="1" min="1" placeholder="宽"
+      <input v-model.number="screenResW" type="number" step="1" min="1" :placeholder="detectedResW ? String(detectedResW) : '宽'"
         class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
       <span class="text-[10px] text-gray-400">×</span>
-      <input v-model.number="screenResH" type="number" step="1" min="1" placeholder="高"
+      <input v-model.number="screenResH" type="number" step="1" min="1" :placeholder="detectedResH ? String(detectedResH) : '高'"
         class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
-      <span v-if="screenPPI" class="text-[10px] text-gray-500">PPI≈{{ screenPPI }}</span>
+      <span v-if="screenPPI" class="text-[10px] text-gray-500">PPI≈{{ screenPPI }}<span v-if="dpr !== 1" class="text-orange-400"> DPR×{{ dpr }}</span></span>
       <span v-else class="text-[10px] text-orange-400">填写完整参数</span>
       <div class="flex gap-1 flex-wrap">
         <button v-for="p in screenPresets" :key="p.label"
           class="px-1.5 py-0.5 text-[9px] rounded border transition cursor-pointer whitespace-nowrap"
-          :class="screenDiagonal === p.d && screenResW === p.w && screenResH === p.h ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-500 border-gray-200 hover:border-orange-400 hover:text-orange-500'"
+          :class="(p.d === 0 ? (screenResW === detectedResW && screenResH === detectedResH) : screenDiagonal === p.d && screenResW === p.w && screenResH === p.h) ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-500 border-gray-200 hover:border-orange-400 hover:text-orange-500'"
           @click="applyScreenPreset(p)">{{ p.label }}</button>
       </div>
     </div>
@@ -244,6 +244,19 @@ const screenDiagonal = ref<number | null>(null)
 const screenResW = ref<number | null>(null)
 const screenResH = ref<number | null>(null)
 
+// 操作系统缩放比（Windows缩放与布局 / macOS分辨率缩放）
+const dpr = ref(typeof window !== 'undefined' ? window.devicePixelRatio : 1)
+
+// 自动检测的物理分辨率
+const detectedResW = computed(() => {
+  if (typeof window === 'undefined') return null
+  return Math.round(window.screen.width * dpr.value)
+})
+const detectedResH = computed(() => {
+  if (typeof window === 'undefined') return null
+  return Math.round(window.screen.height * dpr.value)
+})
+
 const screenPPI = computed(() => {
   const d = screenDiagonal.value
   const w = screenResW.value
@@ -253,17 +266,23 @@ const screenPPI = computed(() => {
 })
 
 const screenPresets = [
+  { label: '🔍自动', d: 0, w: 0, h: 0 },
   { label: '14"FHD', d: 14, w: 1920, h: 1080 },
   { label: '24"FHD', d: 24, w: 1920, h: 1080 },
   { label: '27"2K', d: 27, w: 2560, h: 1440 },
   { label: '27"4K', d: 27, w: 3840, h: 2160 },
-  { label: '6.7"', d: 6.7, w: 2796, h: 1290 },
 ]
 
 function applyScreenPreset(p: typeof screenPresets[number]) {
-  screenDiagonal.value = p.d
-  screenResW.value = p.w
-  screenResH.value = p.h
+  if (p.d === 0) {
+    // 自动：仅填充检测到的分辨率，尺寸仍需手动输入
+    screenResW.value = detectedResW.value
+    screenResH.value = detectedResH.value
+  } else {
+    screenDiagonal.value = p.d
+    screenResW.value = p.w
+    screenResH.value = p.h
+  }
 }
 
 /** 设置单元格尺寸（若在实图模式则先退出） */
@@ -272,14 +291,15 @@ function setCellSize(size: number) {
   cellSize.value = size
 }
 
-/** 根据屏幕参数和豆子尺寸计算实际物理尺寸对应的 CSS 像素 */
+/** 根据屏幕参数、豆子尺寸、系统缩放计算实际 CSS 像素 */
 const realCellPx = computed(() => {
   const d = screenDiagonal.value
   const w = screenResW.value
   const h = screenResH.value
   if (!d || !w || !h || d <= 0 || w <= 0 || h <= 0) return null
-  const ppi = Math.sqrt(w * w + h * h) / d
-  return Math.round(beadSizeMM.value / 25.4 * ppi)
+  const physicalPPI = Math.sqrt(w * w + h * h) / d
+  // CSS像素 = 物理像素 / devicePixelRatio
+  return Math.round(beadSizeMM.value / 25.4 * physicalPPI / dpr.value)
 })
 
 /** 实际生效的单元格尺寸 */
