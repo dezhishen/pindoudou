@@ -211,26 +211,176 @@ export function useBeadGrid(
   })
 
   // ========== 导出 ==========
-  function downloadPNG() {
-    const size = 20
+
+  /** 下载单元格像素尺寸 */
+  const DOWNLOAD_CELL = 20
+
+  function downloadPNG(mode: 'color' | 'both' | 'coords' = 'color') {
+    const size = DOWNLOAD_CELL
     const w = displayCols.value
     const h = displayRows.value
-    const canvas = document.createElement('canvas')
-    canvas.width = w * size
-    canvas.height = h * size
-    const ctx = canvas.getContext('2d')!
-    displayBeads.value.forEach(b => {
-      const dx = b.displayX * size
-      const dy = b.displayY * size
-      ctx.fillStyle = b.color.hex
-      ctx.fillRect(dx, dy, size, size)
-      ctx.strokeStyle = 'rgba(200,200,200,0.3)'
-      ctx.strokeRect(dx, dy, size, size)
-    })
+
+    if (mode === 'both') {
+      // 标尺模式：左上角占位 + 列标尺 + 行标尺 + 拼豆
+      const canvas = document.createElement('canvas')
+      canvas.width = (w + 1) * size
+      canvas.height = (h + 1) * size
+      const ctx = canvas.getContext('2d')!
+
+      // 左上角占位
+      ctx.fillStyle = '#f3f4f6'
+      ctx.fillRect(0, 0, size, size)
+      ctx.strokeStyle = '#d1d5db'
+      ctx.strokeRect(0, 0, size, size)
+
+      // 列标尺 (x 坐标)
+      const rulerFontSize = Math.max(8, Math.round(size * 0.4))
+      ctx.font = `${rulerFontSize}px monospace`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      for (let x = 0; x < w; x++) {
+        const dx = (x + 1) * size
+        ctx.fillStyle = '#f3f4f6'
+        ctx.fillRect(dx, 0, size, size)
+        ctx.strokeStyle = '#d1d5db'
+        ctx.strokeRect(dx, 0, size, size)
+        ctx.fillStyle = '#6b7280'
+        ctx.fillText(String(x), dx + size / 2, size / 2, size)
+      }
+
+      // 行标尺 + 拼豆
+      for (let y = 0; y < h; y++) {
+        const dy = (y + 1) * size
+        // 行标尺
+        ctx.fillStyle = '#f3f4f6'
+        ctx.fillRect(0, dy, size, size)
+        ctx.strokeStyle = '#d1d5db'
+        ctx.strokeRect(0, dy, size, size)
+        ctx.fillStyle = '#6b7280'
+        ctx.fillText(String(y), size / 2, dy + size / 2, size)
+      }
+
+      // 拼豆单元格
+      displayBeads.value.forEach(b => {
+        const dx = (b.displayX + 1) * size
+        const dy = (b.displayY + 1) * size
+        ctx.fillStyle = b.color.hex
+        ctx.fillRect(dx, dy, size, size)
+        ctx.strokeStyle = 'rgba(200,200,200,0.3)'
+        ctx.strokeRect(dx, dy, size, size)
+      })
+
+      const link = document.createElement('a')
+      link.download = `pindoudou-ruler-${Date.now()}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    } else if (mode === 'coords') {
+      // 坐标格模式：每个单元格内显示 (x, y) 坐标
+      const canvas = document.createElement('canvas')
+      canvas.width = w * size
+      canvas.height = h * size
+      const ctx = canvas.getContext('2d')!
+
+      displayBeads.value.forEach(b => {
+        const dx = b.displayX * size
+        const dy = b.displayY * size
+        ctx.fillStyle = b.color.hex
+        ctx.fillRect(dx, dy, size, size)
+        ctx.strokeStyle = 'rgba(200,200,200,0.3)'
+        ctx.strokeRect(dx, dy, size, size)
+
+        // 坐标文字
+        const coordFontSize = Math.max(6, Math.round(size * 0.35))
+        ctx.fillStyle = '#fff'
+        ctx.font = `bold ${coordFontSize}px monospace`
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.shadowColor = '#000'
+        ctx.shadowBlur = 1
+        ctx.fillText(`${b.displayX},${b.displayY}`, dx + size / 2, dy + size / 2)
+        ctx.shadowBlur = 0
+      })
+
+      const link = document.createElement('a')
+      link.download = `pindoudou-coords-${Date.now()}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    } else {
+      // 纯颜色模式（默认）
+      const canvas = document.createElement('canvas')
+      canvas.width = w * size
+      canvas.height = h * size
+      const ctx = canvas.getContext('2d')!
+      displayBeads.value.forEach(b => {
+        const dx = b.displayX * size
+        const dy = b.displayY * size
+        ctx.fillStyle = b.color.hex
+        ctx.fillRect(dx, dy, size, size)
+        ctx.strokeStyle = 'rgba(200,200,200,0.3)'
+        ctx.strokeRect(dx, dy, size, size)
+      })
+      const link = document.createElement('a')
+      link.download = `pindoudou-${Date.now()}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    }
+  }
+
+  function downloadSVG(mode: 'color' | 'both' | 'coords' = 'color') {
+    const size = DOWNLOAD_CELL
+    const w = displayCols.value
+    const h = displayRows.value
+
+    const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+    const beadRects = displayBeads.value.map(b => {
+      const x = mode === 'both' ? (b.displayX + 1) * size : b.displayX * size
+      const y = mode === 'both' ? (b.displayY + 1) * size : b.displayY * size
+      return `<rect x="${x}" y="${y}" width="${size}" height="${size}" fill="${b.color.hex}" stroke="rgba(200,200,200,0.3)" stroke-width="0.5"/>`
+    }).join('\n')
+
+    let svg = ''
+    const totalW = mode === 'both' ? (w + 1) * size : w * size
+    const totalH = mode === 'both' ? (h + 1) * size : h * size
+
+    if (mode === 'both') {
+      // 左上角占位
+      svg += `<rect x="0" y="0" width="${size}" height="${size}" fill="#f3f4f6" stroke="#d1d5db" stroke-width="0.5"/>\n`
+      // 列标尺
+      const rulerFontSize = Math.max(8, Math.round(size * 0.4))
+      for (let x = 0; x < w; x++) {
+        const dx = (x + 1) * size
+        svg += `<rect x="${dx}" y="0" width="${size}" height="${size}" fill="#f3f4f6" stroke="#d1d5db" stroke-width="0.5"/>\n`
+        svg += `<text x="${dx + size / 2}" y="${size / 2}" font-family="monospace" font-size="${rulerFontSize}" fill="#6b7280" text-anchor="middle" dominant-baseline="central">${esc(String(x))}</text>\n`
+      }
+      // 行标尺
+      for (let y = 0; y < h; y++) {
+        const dy = (y + 1) * size
+        svg += `<rect x="0" y="${dy}" width="${size}" height="${size}" fill="#f3f4f6" stroke="#d1d5db" stroke-width="0.5"/>\n`
+        svg += `<text x="${size / 2}" y="${dy + size / 2}" font-family="monospace" font-size="${rulerFontSize}" fill="#6b7280" text-anchor="middle" dominant-baseline="central">${esc(String(y))}</text>\n`
+      }
+    } else if (mode === 'coords') {
+      const coordFontSize = Math.max(6, Math.round(size * 0.35))
+      const coordTexts = displayBeads.value.map(b => {
+        const x = b.displayX * size
+        const y = b.displayY * size
+        return `<text x="${x + size / 2}" y="${y + size / 2}" font-family="monospace" font-weight="bold" font-size="${coordFontSize}" fill="#fff" text-anchor="middle" dominant-baseline="central" style="text-shadow:0 0 1px #000">${esc(`${b.displayX},${b.displayY}`)}</text>`
+      }).join('\n')
+      svg += beadRects + '\n' + coordTexts
+    } else {
+      svg += beadRects
+    }
+
+    const blob = new Blob([
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${totalW}" height="${totalH}" viewBox="0 0 ${totalW} ${totalH}">\n${svg}\n</svg>`
+    ], { type: 'image/svg+xml' })
+    const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
-    link.download = `pindoudou-${Date.now()}.png`
-    link.href = canvas.toDataURL('image/png')
+    const suffix = mode === 'both' ? '-ruler' : mode === 'coords' ? '-coords' : ''
+    link.download = `pindoudou${suffix}-${Date.now()}.svg`
+    link.href = url
     link.click()
+    URL.revokeObjectURL(url)
   }
 
   function selectByColor(code: string) {
@@ -253,6 +403,6 @@ export function useBeadGrid(
     // 统计
     stats,
     // 导出
-    downloadPNG, selectByColor,
+    downloadPNG, downloadSVG, selectByColor,
   }
 }

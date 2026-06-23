@@ -87,7 +87,22 @@
             </div>
           </div>
           <div class="card flex flex-col gap-2">
-            <button class="btn btn-primary btn-block" @click="downloadGrid">📥 下载 PNG</button>
+            <!-- 下载下拉按钮 -->
+            <div class="relative">
+              <button class="btn btn-primary btn-block flex items-center justify-center gap-1" @click="showDownloadMenu = !showDownloadMenu">
+                📥 下载 <span class="text-[10px] opacity-70">▼</span>
+              </button>
+              <!-- 点击外部遮罩 -->
+              <div v-if="showDownloadMenu" class="fixed inset-0 z-40" @click="showDownloadMenu = false" />
+              <div v-if="showDownloadMenu" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                <button class="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 flex items-center gap-2 transition border-b border-gray-100" @click="downloadGrid(); showDownloadMenu = false">
+                  🖼️ PNG 位图
+                </button>
+                <button class="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 flex items-center gap-2 transition" @click="downloadSVGGrid(); showDownloadMenu = false">
+                  📐 SVG 矢量图
+                </button>
+              </div>
+            </div>
             <button class="btn btn-outline btn-block" @click="copyPaletteText">📋 复制颜色清单</button>
             <button class="btn btn-ghost btn-block" @click="resetAll">🔄 重新上传</button>
           </div>
@@ -121,6 +136,7 @@ const error = ref('')
 const result = ref<ProcessResult | null>(null)
 const imagePreviewUrl = ref('')
 const drawerOpen = ref(false)
+const showDownloadMenu = ref(false)
 const gridRef = ref<InstanceType<typeof BeadGrid>>()
 const colorInfo = ref<{ color: BeadColor; count: number }[]>([])
 
@@ -169,6 +185,7 @@ function changeFillColor(color: string) {
 }
 function onGridInfo(info: { colorInfo: { color: BeadColor; count: number }[] }) { colorInfo.value = info.colorInfo }
 function downloadGrid() { gridRef.value?.downloadPNG() }
+function downloadSVGGrid() { gridRef.value?.downloadSVG() }
 function copyPaletteText() { if (colorInfo.value.length) navigator.clipboard.writeText(colorInfo.value.map(c => `${c.color.name} (${c.color.hex}): ${c.count}颗`).join('\n')) }
 function selectColorInGrid(code: string) { gridRef.value?.selectByColor(code) }
 </script>

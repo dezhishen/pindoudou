@@ -194,7 +194,7 @@ const {
   displayCols, displayRows, displayBeads,
   selectedIndices, editingIndex, sameColorIndices,
   toggleSelect, clearSelection, startEdit, getCellColor, applyColor,
-  stats, downloadPNG, selectByColor,
+  stats, downloadPNG, downloadSVG, selectByColor,
   beadSizeMM, physicalSize,
 } = useBeadGrid(pixelRef, props.cols, props.rows, strategyRef)
 
@@ -258,7 +258,12 @@ function rowBeads(y: number): DisplayBead[] {
 }
 
 watch(() => stats.value, (s) => { emit('update-info', { colorInfo: s.colorInfo }) }, { deep: true, immediate: true })
-defineExpose({ downloadPNG, selectByColor })
+
+/** 根据当前展示模式下载 */
+function downloadWithMode() { downloadPNG(displayMode.value) }
+function downloadSVGWithMode() { downloadSVG(displayMode.value) }
+
+defineExpose({ downloadPNG: downloadWithMode, downloadSVG: downloadSVGWithMode, selectByColor })
 </script>
 
 <style scoped>
