@@ -77,9 +77,28 @@ export function useBeadGrid(
 
   // ========== 精度/采样 ==========
   const BEAD_SIZE = 8
-  /** 自适应初始精度：让网格宽度 ≈ 600px */
-  const initStep = Math.max(1, Math.floor((sourceCols * BEAD_SIZE) / 600))
-  const step = ref(initStep)
+  /** 自适应初始精度：对齐最近的拼豆宽度预设值 */
+  const step = ref(1)
+
+  /** 拼豆数量预设 */
+  const beadCountPresets = computed(() => {
+    const candidates = [sourceCols, 128, 64, 32, 16, 8]
+    return candidates.filter(c => c <= sourceCols && c >= 2)
+  })
+
+  // 初始化：选取最接近 600px 网格宽度的预设值
+  const targetCols = Math.max(1, Math.floor(600 / BEAD_SIZE))
+  let bestPreset = beadCountPresets.value[0] ?? sourceCols
+  for (const c of beadCountPresets.value) {
+    if (Math.abs(c - targetCols) < Math.abs(bestPreset - targetCols)) bestPreset = c
+  }
+  step.value = Math.max(1, Math.ceil(sourceCols / bestPreset))
+
+  /** 由拼豆数量反算 step */
+  function setBeadCount(count: number) {
+    step.value = Math.max(1, Math.ceil(sourceCols / count))
+  }
+
   const maxStep = computed(() => Math.max(1, Math.floor(Math.min(sourceCols, sourceRows) / 2)))
 
   // step 超过 maxStep 时自动下拉
@@ -96,18 +115,6 @@ export function useBeadGrid(
     const h = Math.round(displayRows.value * mm)
     return { w, h, label: `${w}×${h}mm` }
   })
-
-  /** 拼豆数量（用户直观选择） */
-  const beadCountPresets = computed(() => {
-    // 从 sourceCols 向下取 2 的幂次或常用值
-    const candidates = [sourceCols, 128, 64, 32, 16, 8]
-    return candidates.filter(c => c <= sourceCols && c >= 2)
-  })
-
-  /** 由拼豆数量反算 step */
-  function setBeadCount(count: number) {
-    step.value = Math.max(1, Math.ceil(sourceCols / count))
-  }
 
   /** 降采样后每行实际像素数 */
   const displayCols = computed(() => Math.ceil(sourceCols / step.value))
