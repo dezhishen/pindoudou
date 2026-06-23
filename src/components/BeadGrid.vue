@@ -112,9 +112,10 @@
     <!-- 实图模式：屏幕参数设置（仅实图激活时显示） -->
     <div v-if="realSizeMode" class="flex items-center gap-2 flex-wrap bg-orange-50 rounded-lg px-3 py-2">
       <span class="text-xs text-gray-500 whitespace-nowrap">屏幕</span>
-      <input v-model.number="screenDiagonal" type="number" step="0.1" min="1" max="100" placeholder="尺寸"
-        class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
-      <span class="text-[10px] text-gray-400">英寸</span>
+      <select v-model.number="screenDiagonal" class="w-14 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded bg-white focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none appearance-none cursor-pointer">
+        <option :value="null" disabled>尺寸</option>
+        <option v-for="s in commonScreenSizes" :key="s" :value="s">{{ s }}"</option>
+      </select>
       <input v-model.number="screenResW" type="number" step="1" min="1" :placeholder="detectedResW ? String(detectedResW) : '宽'"
         class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
       <span class="text-[10px] text-gray-400">×</span>
@@ -244,6 +245,9 @@ const screenDiagonal = ref<number | null>(null)
 const screenResW = ref<number | null>(null)
 const screenResH = ref<number | null>(null)
 
+// 常见屏幕尺寸
+const commonScreenSizes = [13, 14, 15, 16, 21, 24, 27, 32, 34, 42, 49, 55, 65]
+
 // 操作系统缩放比（Windows缩放与布局 / macOS分辨率缩放）
 const dpr = ref(typeof window !== 'undefined' ? window.devicePixelRatio : 1)
 
@@ -290,6 +294,14 @@ function setCellSize(size: number) {
   realSizeMode.value = false
   cellSize.value = size
 }
+
+// 首次开启实图模式时自动填入检测到的分辨率
+watch(realSizeMode, (on) => {
+  if (on && screenResW.value == null && screenResH.value == null && detectedResW.value && detectedResH.value) {
+    screenResW.value = detectedResW.value
+    screenResH.value = detectedResH.value
+  }
+})
 
 /** 根据屏幕参数、豆子尺寸、系统缩放计算实际 CSS 像素 */
 const realCellPx = computed(() => {
