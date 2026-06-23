@@ -94,7 +94,7 @@ export function useBeadGrid(
     const mm = beadSizeMM.value
     const w = Math.round(displayCols.value * mm)
     const h = Math.round(displayRows.value * mm)
-    return { w, h, label: `${Math.round(w/10)}×${Math.round(h/10)}cm` }
+    return { w, h, label: `${w}×${h}mm` }
   })
 
   /** 拼豆数量（用户直观选择） */

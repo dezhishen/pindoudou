@@ -38,8 +38,8 @@
           @click="beadSizeMM = 2.6">2.6mm 小号</button>
       </div>
       <span class="text-xs font-semibold text-primary whitespace-nowrap">≈ {{ physicalSize.label }}</span>
-      <span v-if="beadSizeMM === 5" class="text-[10px] text-gray-400">（小号≈{{ Math.round(displayCols * 2.6 / 10) }}×{{ Math.round(displayRows * 2.6 / 10) }}cm）</span>
-      <span v-else class="text-[10px] text-gray-400">（大号≈{{ Math.round(displayCols * 5 / 10) }}×{{ Math.round(displayRows * 5 / 10) }}cm）</span>
+      <span v-if="beadSizeMM === 5" class="text-[10px] text-gray-400">（小号≈{{ Math.round(displayCols * 2.6) }}×{{ Math.round(displayRows * 2.6) }}mm）</span>
+      <span v-else class="text-[10px] text-gray-400">（大号≈{{ Math.round(displayCols * 5) }}×{{ Math.round(displayRows * 5) }}mm）</span>
     </div>
 
     <!-- 拼豆宽度 -->
