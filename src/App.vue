@@ -1,12 +1,11 @@
 <template>
   <div class="flex flex-col min-h-screen bg-gray-100">
     <header class="bg-gradient-to-r from-primary to-green-400 text-white py-3 shadow-md">
-      <div class="px-3 flex items-center justify-between">
+      <div class="px-3 flex items-center gap-3">
         <h1 class="text-lg font-bold flex items-center gap-2"><span class="text-xl">🧩</span>拼豆图案生成器</h1>
-        <div class="flex items-center gap-2">
-          <button v-if="result" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs font-medium hover:bg-white/25 transition" @click="showUploadModal = true">🔄 重新上传</button>
-          <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs font-medium hover:bg-white/25 transition" @click="openHistory">📋 历史</button>
-        </div>
+        <button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs font-medium hover:bg-white/25 transition" @click="openHistory">📋 历史</button>
+        <button v-if="result" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs font-medium hover:bg-white/25 transition" @click="showUploadModal = true">🔄 重新上传</button>
+        <span class="flex-1" />
       </div>
     </header>
 
