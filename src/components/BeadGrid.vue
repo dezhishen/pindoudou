@@ -18,6 +18,10 @@
         <span class="text-xs text-gray-500">选中</span>
         <span class="text-sm font-bold text-primary">{{ selectedIndices.size }}</span>
       </div>
+      <div v-if="realSizeMode && realCellPx" class="flex flex-col items-center bg-orange-50 px-3 py-1.5 rounded-lg">
+        <span class="text-xs text-orange-500">📏 实图</span>
+        <span class="text-sm font-bold text-orange-600">{{ realCellPx }}px/颗</span>
+      </div>
     </div>
 
     <!-- 豆子尺寸切换 -->
@@ -58,18 +62,32 @@
         <div class="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
           <button
             class="px-2 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
-            :class="cellSize === 6 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            :class="!realSizeMode && cellSize === 6 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            :disabled="realSizeMode"
             @click="cellSize = 6">小</button>
           <button
             class="px-2 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
-            :class="cellSize === 8 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            :class="!realSizeMode && cellSize === 8 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            :disabled="realSizeMode"
             @click="cellSize = 8">中</button>
           <button
             class="px-2 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
-            :class="cellSize === 12 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            :class="!realSizeMode && cellSize === 12 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            :disabled="realSizeMode"
             @click="cellSize = 12">大</button>
         </div>
       </div>
+
+      <!-- 实图展示按钮 -->
+      <button
+        class="px-3 py-1 text-[10px] font-medium rounded-lg border transition cursor-pointer whitespace-nowrap"
+        :class="realSizeMode ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-600 border-gray-300 hover:border-orange-400 hover:text-orange-500'"
+        :disabled="!realCellPx"
+        :title="realCellPx ? `实际尺寸: ${realCellPx}px/颗` : '请先设置屏幕参数'"
+        @click="realSizeMode = !realSizeMode"
+      >
+        📏 实图{{ realSizeMode ? ' ON' : '' }}
+      </button>
 
       <div class="flex items-center gap-1.5">
         <span class="text-xs text-gray-500 whitespace-nowrap">展示</span>
@@ -181,6 +199,9 @@ const props = defineProps<{
   cols: number
   rows: number
   strategyId?: ColorStrategyId
+  screenDiagonal?: number  // 屏幕对角线英寸
+  screenResW?: number       // 屏幕水平像素
+  screenResH?: number       // 屏幕垂直像素
 }>()
 const emit = defineEmits<{ (e: 'update-info', info: { colorInfo: { color: import('@/types').BeadColor; count: number }[] }): void }>()
 const pixelRef = ref<RawPixel[]>([])
@@ -205,19 +226,40 @@ const displayMode = ref<DisplayMode>('color')
 // ========== 单元格缩放 ==========
 const cellSize = ref(8)  // 小6 / 中8 / 大12
 
+// ========== 实图模式 ==========
+const realSizeMode = ref(false)
+
+/** 根据屏幕参数和豆子尺寸计算实际物理尺寸对应的 CSS 像素 */
+const realCellPx = computed(() => {
+  const d = props.screenDiagonal
+  const w = props.screenResW
+  const h = props.screenResH
+  if (!d || !w || !h || d <= 0 || w <= 0 || h <= 0) return null
+  const ppi = Math.sqrt(w * w + h * h) / d
+  return Math.round(beadSizeMM.value / 25.4 * ppi)
+})
+
+/** 实际生效的单元格尺寸 */
+const effectiveCellSize = computed(() => {
+  if (realSizeMode.value && realCellPx.value != null && realCellPx.value > 0) {
+    return realCellPx.value
+  }
+  return cellSize.value
+})
+
 /** 坐标格模式下单元格尺寸（约为颜色模式的2.75倍以便显示文字） */
-const coordCellSize = computed(() => Math.round(cellSize.value * 2.75))
+const coordCellSize = computed(() => Math.round(effectiveCellSize.value * 2.75))
 
 // ========== 网格样式 ==========
 const gridStyle = computed(() => ({
-  gridTemplateColumns: `repeat(${displayCols.value}, ${cellSize.value}px)`,
-  gridTemplateRows: `repeat(${displayRows.value}, ${cellSize.value}px)`,
+  gridTemplateColumns: `repeat(${displayCols.value}, ${effectiveCellSize.value}px)`,
+  gridTemplateRows: `repeat(${displayRows.value}, ${effectiveCellSize.value}px)`,
 }))
 
 /** 标尺模式网格（多一行列头 + 多一列行头） */
 const rulerGridStyle = computed(() => ({
-  gridTemplateColumns: `${cellSize.value}px repeat(${displayCols.value}, ${cellSize.value}px)`,
-  gridTemplateRows: `${cellSize.value}px repeat(${displayRows.value}, ${cellSize.value}px)`,
+  gridTemplateColumns: `${effectiveCellSize.value}px repeat(${displayCols.value}, ${effectiveCellSize.value}px)`,
+  gridTemplateRows: `${effectiveCellSize.value}px repeat(${displayRows.value}, ${effectiveCellSize.value}px)`,
 }))
 
 /** 坐标格模式网格 */
@@ -226,12 +268,12 @@ const coordGridStyle = computed(() => ({
   gridTemplateRows: `repeat(${displayRows.value}, ${coordCellSize.value}px)`,
 }))
 
-const cornerStyle = computed(() => ({ width: cellSize.value+'px', height: cellSize.value+'px' }))
-const rulerCellStyle = computed(() => ({ width: cellSize.value+'px', height: cellSize.value+'px' }))
-const beadCellStyle = computed(() => ({ width: cellSize.value+'px', height: cellSize.value+'px' }))
+const cornerStyle = computed(() => ({ width: effectiveCellSize.value+'px', height: effectiveCellSize.value+'px' }))
+const rulerCellStyle = computed(() => ({ width: effectiveCellSize.value+'px', height: effectiveCellSize.value+'px' }))
+const beadCellStyle = computed(() => ({ width: effectiveCellSize.value+'px', height: effectiveCellSize.value+'px' }))
 
 const coordTextStyle = computed(() => ({
-  fontSize: Math.max(5, Math.round(cellSize.value * 0.75)) + 'px',
+  fontSize: Math.max(5, Math.round(effectiveCellSize.value * 0.75)) + 'px',
 }))
 
 // ========== 单元格样式 ==========
@@ -263,7 +305,7 @@ watch(() => stats.value, (s) => { emit('update-info', { colorInfo: s.colorInfo }
 function downloadWithMode() { downloadPNG(displayMode.value) }
 function downloadSVGWithMode() { downloadSVG(displayMode.value) }
 
-defineExpose({ downloadPNG: downloadWithMode, downloadSVG: downloadSVGWithMode, selectByColor })
+defineExpose({ downloadPNG: downloadWithMode, downloadSVG: downloadSVGWithMode, selectByColor, toggleRealSize: () => { realSizeMode.value = !realSizeMode.value }, realSizeMode })
 </script>
 
 <style scoped>
