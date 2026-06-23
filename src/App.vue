@@ -87,19 +87,19 @@
             </div>
           </div>
           <div class="card flex flex-col gap-2">
-            <!-- 下载下拉按钮 -->
-            <div class="relative">
-              <button class="btn btn-primary btn-block flex items-center justify-center gap-1" @click="showDownloadMenu = !showDownloadMenu">
-                📥 下载 <span class="text-[10px] opacity-70">▼</span>
+            <!-- 下载按钮：默认PNG，下拉可选SVG -->
+            <div class="relative flex">
+              <button class="btn btn-primary flex-1 rounded-r-none" @click="downloadGrid">
+                📥 下载 PNG
+              </button>
+              <button class="btn btn-primary rounded-l-none border-l border-white/30 px-2.5" @click="showDownloadMenu = !showDownloadMenu">
+                <span class="text-[10px]">▼</span>
               </button>
               <!-- 点击外部遮罩 -->
               <div v-if="showDownloadMenu" class="fixed inset-0 z-40" @click="showDownloadMenu = false" />
               <div v-if="showDownloadMenu" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-                <button class="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 flex items-center gap-2 transition border-b border-gray-100" @click="downloadGrid(); showDownloadMenu = false">
-                  🖼️ PNG 位图
-                </button>
                 <button class="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 flex items-center gap-2 transition" @click="downloadSVGGrid(); showDownloadMenu = false">
-                  📐 SVG 矢量图
+                  📐 下载 SVG 矢量图
                 </button>
               </div>
             </div>
