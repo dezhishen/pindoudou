@@ -400,6 +400,6 @@ function changeFillColor(color: string) {
 function onGridInfo(info: { colorInfo: { color: BeadColor; count: number }[] }) { colorInfo.value = info.colorInfo }
 function downloadGrid() { gridRef.value?.downloadPNG() }
 function downloadSVGGrid() { gridRef.value?.downloadSVG() }
-function copyPaletteText() { if (colorInfo.value.length) navigator.clipboard.writeText(colorInfo.value.map(c => $t('app.copyFormat', { name: c.color.name, hex: c.color.hex, count: c.count })).join('\n')) }
+function copyPaletteText() { if (colorInfo.value.length) navigator.clipboard.writeText(colorInfo.value.map(c => $t('app.copyFormat', { name: $t('color.' + c.color.code) || c.color.name, hex: c.color.hex, count: c.count })).join('\n')) }
 function selectColorInGrid(code: string) { gridRef.value?.selectByColor(code) }
 </script>

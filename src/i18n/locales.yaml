@@ -103,6 +103,44 @@ zh-CN:
   density.medium: 适中
   density.coarse: 粗糙
 
+  color.WHITE: 白色
+  color.CREAM: 奶油色
+  color.LTPINK: 浅粉色
+  color.PINK: 粉色
+  color.DEEPINK: 深粉色
+  color.RED: 红色
+  color.DKRED: 深红色
+  color.MAROON: 栗色
+  color.LTORANGE: 浅橙色
+  color.ORANGE: 橙色
+  color.DKRANGE: 深橙色
+  color.LTYELLOW: 浅黄色
+  color.YELLOW: 黄色
+  color.DKYELLOW: 深黄色
+  color.LTGREEN: 浅绿色
+  color.GREEN: 绿色
+  color.DKGREEN: 深绿色
+  color.TEAL: 青绿色
+  color.LTBLUE: 浅蓝色
+  color.SKYBLUE: 天蓝色
+  color.BLUE: 蓝色
+  color.DKBLUE: 深蓝色
+  color.INDIGO: 靛蓝色
+  color.PURPLE: 紫色
+  color.LTPURPLE: 浅紫色
+  color.LAVENDER: 薰衣草
+  color.BROWN: 棕色
+  color.LTBROWN: 浅棕色
+  color.DKBROWN: 深棕色
+  color.GRAY: 灰色
+  color.LTGRAY: 浅灰色
+  color.DKGRAY: 深灰色
+  color.BLACK: 黑色
+  color.TAUPE: 灰褐色
+  color.OLIVE: 橄榄绿
+  color.CORAL: 珊瑚色
+  color.PEACH: 桃色
+
   strategy.euclideanRgb: RGB 欧几里得
   strategy.euclideanRgbDesc: RGB空间直接距离，速度快但对暗色区域偏差较大
   strategy.weightedRgb: 加权 RGB
@@ -224,6 +262,44 @@ en:
   density.medium: Medium
   density.coarse: Coarse
 
+  color.WHITE: White
+  color.CREAM: Cream
+  color.LTPINK: Light Pink
+  color.PINK: Pink
+  color.DEEPINK: Deep Pink
+  color.RED: Red
+  color.DKRED: Dark Red
+  color.MAROON: Maroon
+  color.LTORANGE: Light Orange
+  color.ORANGE: Orange
+  color.DKRANGE: Dark Orange
+  color.LTYELLOW: Light Yellow
+  color.YELLOW: Yellow
+  color.DKYELLOW: Dark Yellow
+  color.LTGREEN: Light Green
+  color.GREEN: Green
+  color.DKGREEN: Dark Green
+  color.TEAL: Teal
+  color.LTBLUE: Light Blue
+  color.SKYBLUE: Sky Blue
+  color.BLUE: Blue
+  color.DKBLUE: Dark Blue
+  color.INDIGO: Indigo
+  color.PURPLE: Purple
+  color.LTPURPLE: Light Purple
+  color.LAVENDER: Lavender
+  color.BROWN: Brown
+  color.LTBROWN: Light Brown
+  color.DKBROWN: Dark Brown
+  color.GRAY: Gray
+  color.LTGRAY: Light Gray
+  color.DKGRAY: Dark Gray
+  color.BLACK: Black
+  color.TAUPE: Taupe
+  color.OLIVE: Olive
+  color.CORAL: Coral
+  color.PEACH: Peach
+
   strategy.euclideanRgb: RGB Euclidean
   strategy.euclideanRgbDesc: Direct RGB distance, fast but less accurate in dark areas
   strategy.weightedRgb: Weighted RGB
@@ -344,6 +420,44 @@ zh-TW:
   density.fine: 精細
   density.medium: 適中
   density.coarse: 粗糙
+
+  color.WHITE: 白色
+  color.CREAM: 奶油色
+  color.LTPINK: 淺粉色
+  color.PINK: 粉色
+  color.DEEPINK: 深粉色
+  color.RED: 紅色
+  color.DKRED: 深紅色
+  color.MAROON: 栗色
+  color.LTORANGE: 淺橙色
+  color.ORANGE: 橙色
+  color.DKRANGE: 深橙色
+  color.LTYELLOW: 淺黃色
+  color.YELLOW: 黃色
+  color.DKYELLOW: 深黃色
+  color.LTGREEN: 淺綠色
+  color.GREEN: 綠色
+  color.DKGREEN: 深綠色
+  color.TEAL: 青綠色
+  color.LTBLUE: 淺藍色
+  color.SKYBLUE: 天藍色
+  color.BLUE: 藍色
+  color.DKBLUE: 深藍色
+  color.INDIGO: 靛藍色
+  color.PURPLE: 紫色
+  color.LTPURPLE: 淺紫色
+  color.LAVENDER: 薰衣草
+  color.BROWN: 棕色
+  color.LTBROWN: 淺棕色
+  color.DKBROWN: 深棕色
+  color.GRAY: 灰色
+  color.LTGRAY: 淺灰色
+  color.DKGRAY: 深灰色
+  color.BLACK: 黑色
+  color.TAUPE: 灰褐色
+  color.OLIVE: 橄欖綠
+  color.CORAL: 珊瑚色
+  color.PEACH: 桃色
 
   strategy.euclideanRgb: RGB 歐幾里得
   strategy.euclideanRgbDesc: RGB空間直接距離，速度快但對暗色區域偏差較大
