@@ -229,6 +229,7 @@ const props = defineProps<{
   cols: number
   rows: number
   strategyId?: ColorStrategyId
+  strategyOptions?: Record<string, unknown>
 }>()
 const emit = defineEmits<{ (e: 'update-info', info: { colorInfo: { color: import('@/types').BeadColor; count: number }[] }): void }>()
 const pixelRef = ref<RawPixel[]>([])
@@ -239,6 +240,8 @@ const rowsRef = computed(() => props.rows)
 watch(() => props.pixels, (v) => { pixelRef.value = v }, { immediate: true })
 watch(() => props.strategyId, (v) => { if (v) strategyRef.value = v })
 
+const strategyOptionsRef = computed(() => props.strategyOptions ?? {})
+
 const {
   step, maxStep, BEAD_SIZE, beadCountPresets, setBeadCount,
   displayCols, displayRows, displayBeads,
@@ -246,7 +249,7 @@ const {
   toggleSelect, clearSelection, startEdit, getCellColor, applyColor,
   stats, downloadPNG, downloadSVG, selectByColor,
   beadSizeMM, physicalSize,
-} = useBeadGrid(pixelRef, colsRef, rowsRef, strategyRef)
+} = useBeadGrid(pixelRef, colsRef, rowsRef, strategyRef, strategyOptionsRef)
 
 // ========== 展示模式 ==========
 type DisplayMode = 'color' | 'both' | 'coords'

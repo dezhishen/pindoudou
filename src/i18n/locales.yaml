@@ -681,6 +681,26 @@ strategy.cie2000Desc:
   en: Industry gold standard, closest to human perception
   zh-TW: 業界金標準，最接近人眼感知，精度最高但計算量較大
 
+strategy.bfs-merge:
+  zh-CN: BFS 区域合并
+  en: BFS Region Merge
+  zh-TW: BFS 區域合併
+
+strategy.bfs-mergeDesc:
+  zh-CN: Lab匹配后BFS自动识别相邻相似区域并合并，阈值自适应
+  en: Lab match then BFS auto-merges adjacent similar regions, adaptive threshold
+  zh-TW: Lab匹配後BFS自動識別相鄰相似區域並合併，閾值自適應
+
+strategy.bfsThreshold:
+  zh-CN: 合并阈值
+  en: Merge Threshold
+  zh-TW: 合併閾值
+
+strategy.bfsAuto:
+  zh-CN: 自动
+  en: Auto
+  zh-TW: 自動
+
 notify.confirm:
   zh-CN: 确定
   en: Confirm

@@ -40,6 +40,28 @@
               </div>
             </label>
           </div>
+          <!-- BFS 阈值滑块：仅当策略支持 postProcessDefaults 时显示 -->
+          <div v-if="currentPostProcessDefaults && currentPostProcessDefaults.threshold !== undefined" class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-600">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs text-gray-500">{{ $t('strategy.bfsThreshold') }}</span>
+              <span class="text-xs font-mono" :class="bfsThresholdValue <= 0 ? 'text-green-500' : 'text-primary'">
+                {{ bfsThresholdValue <= 0 ? $t('strategy.bfsAuto') : bfsThresholdValue.toFixed(1) }}
+              </span>
+            </div>
+            <input
+              type="range"
+              :min="0"
+              :max="30"
+              :step="0.5"
+              :value="bfsThresholdValue"
+              @input="onBfsThresholdChange"
+              class="w-full h-1.5 bg-gray-200 rounded-full appearance-none cursor-pointer dark:bg-gray-600 accent-primary"
+            />
+            <div class="flex justify-between text-[10px] text-gray-300 mt-0.5">
+              <span>{{ $t('strategy.bfsAuto') }}</span>
+              <span>30</span>
+            </div>
+          </div>
         </div>
         <div v-if="transparentIndices.length > 0" class="card">
           <div class="flex items-center justify-between mb-2">
@@ -99,7 +121,7 @@
       </div>
       <div class="min-w-0">
         <div class="bg-white rounded-2xl shadow-sm p-2 dark:bg-gray-800">
-          <BeadGrid ref="gridRef" :pixels="result?.pixels ?? []" :cols="result?.width ?? 0" :rows="result?.height ?? 0" :strategy-id="currentId" @update-info="onGridInfo" />
+          <BeadGrid ref="gridRef" :pixels="result?.pixels ?? []" :cols="result?.width ?? 0" :rows="result?.height ?? 0" :strategy-id="currentId" :strategy-options="strategyOptions" @update-info="onGridInfo" />
         </div>
       </div>
     </div>
@@ -167,7 +189,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, computed } from 'vue'
 import ImageUploader from '@/components/ImageUploader.vue'
 import BeadGrid from '@/components/BeadGrid.vue'
 import { processImage } from '@/utils/imageProcessor'
@@ -200,7 +222,32 @@ function toggleCheck(id: number) {
 
 const gridRef = ref<InstanceType<typeof BeadGrid>>()
 const colorInfo = ref<{ color: BeadColor; count: number }[]>([])
-const { currentId, strategies, setStrategy } = useColorStrategy()
+const { currentId, strategies, setStrategy, currentPostProcessDefaults } = useColorStrategy()
+
+// ---- 策略后处理选项（如 BFS 阈值） ----
+const strategyOptions = ref<Record<string, unknown>>({})
+
+/** 当前 BFS 阈值显示值：<=0 表示自动 */
+const bfsThresholdValue = computed(() => {
+  const v = strategyOptions.value.threshold
+  return v != null ? Number(v) : -1
+})
+
+function onBfsThresholdChange(e: Event) {
+  const val = parseFloat((e.target as HTMLInputElement).value)
+  strategyOptions.value = { ...strategyOptions.value, threshold: val }
+}
+
+// 策略切换时，将后处理选项重置为策略默认值
+watch(currentId, () => {
+  const defaults = currentPostProcessDefaults.value
+  strategyOptions.value = defaults ? { ...defaults } : {}
+})
+
+// 首次加载时初始化
+if (currentPostProcessDefaults.value) {
+  strategyOptions.value = { ...currentPostProcessDefaults.value }
+}
 const transparentIndices = ref<number[]>([])
 const fillColor = ref('#FFFFFF')
 const fillPresets = ['#FFFFFF', '#EEEEEE', '#CCCCCC', '#000000', '#FF0000', '#00AAFF', '#FFD700']

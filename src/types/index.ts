@@ -10,7 +10,7 @@ export interface BeadColor {
 // ========== 颜色匹配策略 ==========
 
 /** 策略唯一标识 */
-export type ColorStrategyId = 'euclidean-rgb' | 'weighted-rgb' | 'lab-euclidean' | 'cie76' | 'cie2000'
+export type ColorStrategyId = 'euclidean-rgb' | 'weighted-rgb' | 'lab-euclidean' | 'cie76' | 'cie2000' | 'bfs-merge'
 
 /** 颜色匹配策略描述 */
 export interface ColorStrategyMeta {
@@ -25,6 +25,10 @@ export type ColorMatchFn = (r: number, g: number, b: number, palette: BeadColor[
 /** 颜色匹配策略完整定义 */
 export interface ColorStrategy extends ColorStrategyMeta {
   match: ColorMatchFn
+  /** 可选：网格后处理（如 BFS 区域合并），在像素匹配完成后对整个网格执行 */
+  postProcess?: (pixels: PixelInfo[], width: number, height: number, options?: Record<string, unknown>) => PixelInfo[]
+  /** 可选：后处理的默认参数，供 UI 读取以渲染控件 */
+  postProcessDefaults?: Record<string, unknown>
 }
 
 export interface PixelInfo {

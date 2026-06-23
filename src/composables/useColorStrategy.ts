@@ -13,6 +13,9 @@ export function useColorStrategy() {
 
   const currentMatchFn = computed(() => getMatchFn(currentId.value))
 
+  /** 当前策略的后处理默认参数（如 BFS 阈值），供 UI 读取 */
+  const currentPostProcessDefaults = computed(() => currentStrategy.value?.postProcessDefaults ?? null)
+
   /** 使用当前策略匹配颜色 */
   function match(r: number, g: number, b: number) {
     return findClosestBeadColorWith(r, g, b, currentMatchFn.value)
@@ -37,5 +40,7 @@ export function useColorStrategy() {
     setStrategy,
     /** 使用当前策略匹配 */
     match,
+    /** 当前策略的后处理默认参数 */
+    currentPostProcessDefaults,
   }
 }

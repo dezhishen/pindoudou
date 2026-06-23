@@ -1,7 +1,7 @@
 import { ref, computed, watch, isRef, type Ref } from 'vue'
 import type { PixelInfo, BeadColor, RawPixel, ColorStrategyId } from '@/types'
 import { allBeadColors, findClosestBeadColor, computeColorInfo, mergeFragmentedColors } from '@/utils/colors'
-import { defaultStrategyId } from '@/utils/colorStrategies'
+import { defaultStrategyId, getStrategy } from '@/utils/colorStrategies'
 import { $t } from '@/i18n'
 
 /**
@@ -47,6 +47,7 @@ export function useBeadGrid(
   sourceCols: Ref<number> | number,
   sourceRows: Ref<number> | number,
   strategyId: Ref<ColorStrategyId> = ref(defaultStrategyId),
+  strategyOptions: Ref<Record<string, unknown>> = ref({}),
 ) {
   const _cols = isRef(sourceCols) ? sourceCols : ref(sourceCols)
   const _rows = isRef(sourceRows) ? sourceRows : ref(sourceRows)
@@ -55,25 +56,56 @@ export function useBeadGrid(
 
   watch(rawPixels, (raw) => {
     const sid = strategyId.value
+    const w = _cols.value
+    const h = _rows.value
     allBeads.value = raw.map(p => ({
       x: p.x,
       y: p.y,
       color: findClosestBeadColor(p.r, p.g, p.b, sid),
     }))
+    // 策略后处理（如 BFS 区域合并）
+    const strategy = getStrategy(sid)
+    if (strategy?.postProcess && w > 0 && h > 0) {
+      strategy.postProcess(allBeads.value, w, h, strategyOptions.value)
+    }
   }, { immediate: true })
 
   // 策略切换时重新匹配（保留拼豆宽度、尺寸等所有显示参数）
   watch(strategyId, (sid) => {
     if (!rawPixels.value.length) return
+    const w = _cols.value
+    const h = _rows.value
     allBeads.value = rawPixels.value.map(p => ({
       x: p.x,
       y: p.y,
       color: findClosestBeadColor(p.r, p.g, p.b, sid),
     }))
+    // 策略后处理（如 BFS 区域合并）
+    const strategy = getStrategy(sid)
+    if (strategy?.postProcess && w > 0 && h > 0) {
+      strategy.postProcess(allBeads.value, w, h, strategyOptions.value)
+    }
     // 颜色变化后清除选中和编辑状态
     selectedIndices.value = new Set()
     editingIndex.value = null
   })
+
+  // 策略选项变化时（如 BFS 阈值滑块），重新匹配并应用后处理
+  watch(strategyOptions, () => {
+    if (!rawPixels.value.length) return
+    const sid = strategyId.value
+    const w = _cols.value
+    const h = _rows.value
+    allBeads.value = rawPixels.value.map(p => ({
+      x: p.x,
+      y: p.y,
+      color: findClosestBeadColor(p.r, p.g, p.b, sid),
+    }))
+    const strategy = getStrategy(sid)
+    if (strategy?.postProcess && w > 0 && h > 0) {
+      strategy.postProcess(allBeads.value, w, h, strategyOptions.value)
+    }
+  }, { deep: true })
 
   // ========== 精度/采样 ==========
   const BEAD_SIZE = 8
