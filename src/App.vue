@@ -1,11 +1,12 @@
 <template>
-  <div class="flex flex-col min-h-screen bg-gray-100">
-    <header class="bg-gradient-to-r from-primary to-green-400 text-white py-3 shadow-md">
+  <div class="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
+    <header class="bg-gradient-to-r from-primary to-green-400 dark:from-green-700 dark:to-green-600 text-white py-3 shadow-md">
       <div class="px-3 flex items-center gap-3">
         <h1 class="text-lg font-bold flex items-center gap-2"><span class="text-xl">🧩</span>{{ $t('app.title') }}</h1>
         <button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs font-medium hover:bg-white/25 transition" @click="openHistory">{{ $t('app.history') }}</button>
         <button v-if="result" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs font-medium hover:bg-white/25 transition" @click="showUploadModal = true">{{ $t('app.reupload') }}</button>
         <span class="flex-1" />
+        <button class="px-2 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs hover:bg-white/25 transition" @click="toggleDark" :title="isDark ? '浅色模式' : '深色模式'">{{ isDark ? '☀️' : '🌙' }}</button>
         <div class="relative">
           <button class="px-2 py-1.5 rounded-lg border border-white/30 bg-white/15 text-white text-xs hover:bg-white/25 transition" @click="showLangMenu = !showLangMenu">{{ $t('lang.switch') }}</button>
           <div v-if="showLangMenu" class="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50">
@@ -16,16 +17,16 @@
     </header>
 
     <main class="flex-1 py-2 px-3 w-full">
-      <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-4 text-sm">
+      <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-4 text-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-300">
         {{ error }}
         <div class="mt-3"><button class="btn btn-outline" @click="error = ''">{{ $t('app.close') }}</button></div>
       </div>
 
       <div class="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-2 items-start relative">
-        <div v-if="loading" class="absolute inset-0 z-30 flex items-center justify-center bg-white/70 rounded-2xl">
+        <div v-if="loading" class="absolute inset-0 z-30 flex items-center justify-center bg-white/70 dark:bg-gray-900/70 rounded-2xl">
           <div class="flex flex-col items-center gap-3">
-            <div class="w-10 h-10 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
-            <p class="text-sm text-gray-500">{{ loadingText }}</p>
+            <div class="w-10 h-10 border-4 border-gray-200 border-t-primary dark:border-gray-600 dark:border-t-green-400 rounded-full animate-spin" />
+            <p class="text-sm text-gray-500 dark:text-gray-300">{{ loadingText }}</p>
           </div>
         </div>
         <div class="flex flex-col gap-3 sticky top-4">
@@ -45,7 +46,7 @@
             <div class="flex flex-col gap-1">
               <label v-for="s in strategies" :key="s.id"
                 class="flex items-center gap-2 px-2.5 py-2 rounded-lg cursor-pointer transition text-xs"
-                :class="currentId === s.id ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-100 hover:bg-gray-100'"
+                :class="currentId === s.id ? 'bg-green-50 border border-green-200 dark:bg-green-900/20 dark:border-green-800' : 'bg-gray-50 border border-gray-100 dark:bg-gray-700/50 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'"
               >
                 <input type="radio" :value="s.id" :checked="currentId === s.id"
                   class="accent-primary"
@@ -77,7 +78,7 @@
           <div v-if="result" class="card">
             <div class="flex items-center justify-between mb-2">
               <h3 class="text-sm font-medium">{{ $t('sidebar.colorUsage') }}</h3>
-              <button class="text-xs text-gray-400 border border-gray-200 rounded px-2 py-0.5 hover:border-primary hover:text-primary transition" @click="drawerOpen = !drawerOpen">{{ drawerOpen ? $t('sidebar.collapse') : $t('sidebar.expand') }}</button>
+              <button class="text-xs text-gray-400 border border-gray-200 rounded px-2 py-0.5 hover:border-primary hover:text-primary transition dark:border-gray-600 dark:hover:border-green-400 dark:hover:text-green-400" @click="drawerOpen = !drawerOpen">{{ drawerOpen ? $t('sidebar.collapse') : $t('sidebar.expand') }}</button>
             </div>
             <div class="flex flex-wrap gap-1">
               <div v-for="c in (colorInfo || []).slice(0, drawerOpen ? undefined : 8)" :key="c.color.code" class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-gray-50 cursor-pointer hover:bg-green-50 text-xs" :title="$t('app.copyFormat', { name: c.color.name, hex: c.color.hex, count: c.count })" @click="selectColorInGrid(c.color.code)">
@@ -114,7 +115,7 @@
           </div>
         </div>
         <div class="min-w-0">
-          <div class="bg-white rounded-2xl shadow-sm p-2">
+          <div class="bg-white rounded-2xl shadow-sm p-2 dark:bg-gray-800">
             <BeadGrid ref="gridRef" :pixels="result?.pixels ?? []" :cols="result?.width ?? 0" :rows="result?.height ?? 0" :strategy-id="currentId" @update-info="onGridInfo" />
           </div>
         </div>
@@ -124,10 +125,10 @@
     <!-- 上传弹框 -->
     <Teleport to="body">
       <div v-if="showUploadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showUploadModal = false">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
-          <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
-            <h3 class="text-base font-bold">{{ $t('upload.title') }}</h3>
-            <button class="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 text-lg transition" @click="showUploadModal = false">{{ $t('upload.close') }}</button>
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden dark:bg-gray-800">
+          <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+            <h3 class="text-base font-bold dark:text-white">{{ $t('upload.title') }}</h3>
+            <button class="w-7 h-7 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500 text-lg transition" @click="showUploadModal = false">{{ $t('upload.close') }}</button>
           </div>
           <div class="p-4">
             <ImageUploader @file-selected="onModalUpload" />
@@ -139,16 +140,16 @@
     <!-- 历史记录弹框 -->
     <Teleport to="body">
       <div v-if="showHistory" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showHistory = false">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col overflow-hidden">
-          <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 shrink-0">
-            <h3 class="text-base font-bold">{{ $t('history.title') }}</h3>
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col overflow-hidden dark:bg-gray-800">
+          <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-gray-700 shrink-0">
+            <h3 class="text-base font-bold dark:text-white">{{ $t('history.title') }}</h3>
             <div class="flex items-center gap-2">
               <button v-if="checkedIds.size > 0" class="text-[10px] px-2 py-1 rounded bg-primary text-white hover:bg-primary-dark transition" @click="exportChecked">{{ $t('history.export', { count: checkedIds.size }) }}</button>
               <label class="text-[10px] px-2 py-1 rounded border border-gray-300 text-gray-500 hover:border-primary hover:text-primary transition cursor-pointer">
                 {{ $t('history.import') }}
                 <input type="file" accept=".json" class="hidden" @change="onImportFile" />
               </label>
-              <button class="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 text-lg transition" @click="showHistory = false">{{ $t('upload.close') }}</button>
+              <button class="w-7 h-7 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500 text-lg transition" @click="showHistory = false">{{ $t('upload.close') }}</button>
             </div>
           </div>
           <div class="p-4 overflow-y-auto flex-1">
@@ -159,7 +160,7 @@
             </div>
             <div v-else class="flex flex-col gap-2">
               <div v-for="h in historyList" :key="h.id"
-                class="flex items-center gap-2 p-2 rounded-lg border border-gray-200 hover:border-primary/30 transition group">
+                class="flex items-center gap-2 p-2 rounded-lg border border-gray-200 hover:border-primary/30 transition group dark:border-gray-700 dark:hover:border-green-400/30">
                 <input type="checkbox" :checked="checkedIds.has(h.id)" class="w-3.5 h-3.5 shrink-0 accent-primary"
                   @click.stop @change="toggleCheck(h.id)" />
                 <img :src="h.thumbnail" class="w-12 h-12 rounded-lg object-cover border border-gray-200 bg-gray-50 shrink-0 cursor-pointer" @click="loadHistory(h.id); showHistory = false" />
@@ -175,7 +176,7 @@
               </div>
             </div>
           </div>
-          <div v-if="historyList.length > 0" class="px-4 py-2 border-t border-gray-100 shrink-0 flex items-center justify-between">
+          <div v-if="historyList.length > 0" class="px-4 py-2 border-t border-gray-100 dark:border-gray-700 shrink-0 flex items-center justify-between">
             <button class="text-xs text-red-400 hover:text-red-600 transition" @click="clearAllHistory">{{ $t('history.clear') }}</button>
             <span v-if="historyFavCount > 0" class="text-[10px] text-yellow-500">{{ $t('history.favCount', { count: historyFavCount }) }}</span>
           </div>
@@ -183,7 +184,7 @@
       </div>
     </Teleport>
 
-    <footer class="text-center py-3 text-xs text-gray-400 border-t border-gray-200 bg-white">{{ $t('app.footer') }} &copy; {{ new Date().getFullYear() }}</footer>
+    <footer class="text-center py-3 text-xs text-gray-400 dark:text-gray-500 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">{{ $t('app.footer') }} &copy; {{ new Date().getFullYear() }}</footer>
 
     <NotifyLayer />
   </div>
@@ -212,6 +213,22 @@ const showDownloadMenu = ref(false)
 const showUploadModal = ref(false)
 const showHistory = ref(false)
 const showLangMenu = ref(false)
+const isDark = ref(false)
+
+// 暗色模式
+function applyDark() {
+  document.documentElement.classList.toggle('dark', isDark.value)
+  localStorage.setItem('pindoudou-dark', String(isDark.value))
+}
+function toggleDark() {
+  isDark.value = !isDark.value
+  applyDark()
+}
+// 初始化
+if (typeof window !== 'undefined') {
+  isDark.value = localStorage.getItem('pindoudou-dark') === 'true'
+  applyDark()
+}
 const historyList = ref<HistoryMeta[]>([])
 const checkedIds = ref<Set<number>>(new Set())
 const historyFavCount = ref(0)

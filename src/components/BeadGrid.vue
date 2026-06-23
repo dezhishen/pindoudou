@@ -2,35 +2,35 @@
   <div class="flex flex-col gap-1.5">
     <!-- 信息栏 -->
     <div class="flex gap-2 flex-wrap">
-      <div class="flex flex-col items-center bg-green-50 px-3 py-1.5 rounded-lg">
-        <span class="text-xs text-gray-500">{{ $t('grid.size') }}</span>
-        <span class="text-sm font-bold text-primary">{{ displayCols }}×{{ displayRows }}</span>
+      <div class="flex flex-col items-center bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-lg">
+        <span class="text-xs text-gray-500 dark:text-gray-400">{{ $t('grid.size') }}</span>
+        <span class="text-sm font-bold text-primary dark:text-green-400">{{ displayCols }}×{{ displayRows }}</span>
       </div>
-      <div class="flex flex-col items-center bg-green-50 px-3 py-1.5 rounded-lg">
-        <span class="text-xs text-gray-500">{{ $t('grid.total') }}</span>
-        <span class="text-sm font-bold text-primary">{{ displayBeads.length }}</span>
+      <div class="flex flex-col items-center bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-lg">
+        <span class="text-xs text-gray-500 dark:text-gray-400">{{ $t('grid.total') }}</span>
+        <span class="text-sm font-bold text-primary dark:text-green-400">{{ displayBeads.length }}</span>
       </div>
-      <div class="flex flex-col items-center bg-green-50 px-3 py-1.5 rounded-lg">
-        <span class="text-xs text-gray-500">{{ $t('grid.colors') }}</span>
-        <span class="text-sm font-bold text-primary">{{ stats.uniqueColorCount }}</span>
+      <div class="flex flex-col items-center bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-lg">
+        <span class="text-xs text-gray-500 dark:text-gray-400">{{ $t('grid.colors') }}</span>
+        <span class="text-sm font-bold text-primary dark:text-green-400">{{ stats.uniqueColorCount }}</span>
       </div>
-      <div class="flex flex-col items-center bg-green-50 px-3 py-1.5 rounded-lg">
-        <span class="text-xs text-gray-500">{{ $t('grid.selected') }}</span>
-        <span class="text-sm font-bold text-primary">{{ selectedIndices.size }}</span>
+      <div class="flex flex-col items-center bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-lg">
+        <span class="text-xs text-gray-500 dark:text-gray-400">{{ $t('grid.selected') }}</span>
+        <span class="text-sm font-bold text-primary dark:text-green-400">{{ selectedIndices.size }}</span>
       </div>
-      <div v-if="realSizeMode && realCellPx" class="flex flex-col items-center bg-orange-50 px-3 py-1.5 rounded-lg">
+      <div v-if="realSizeMode && realCellPx" class="flex flex-col items-center bg-orange-50 dark:bg-orange-900/20 px-3 py-1.5 rounded-lg">
         <span class="text-xs text-orange-500">{{ $t('grid.realSize') }}</span>
         <span class="text-sm font-bold text-orange-600">{{ $t('grid.realSizeUnit', { px: realCellPx }) }}</span>
       </div>
     </div>
 
     <!-- 豆子尺寸切换 -->
-    <div class="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2 -mt-0.5">
-      <span class="text-xs text-gray-500 whitespace-nowrap">{{ $t('grid.beadSize') }}</span>
-      <div class="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div class="flex items-center gap-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg px-3 py-2 -mt-0.5">
+      <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ $t('grid.beadSize') }}</span>
+      <div class="flex bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500 overflow-hidden">
         <button
           class="px-4 py-1.5 text-xs font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
-          :class="beadSizeMM === 5 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+          :class="beadSizeMM === 5 ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-500'"
           @click="beadSizeMM = 5">{{ $t('grid.beadLarge') }}</button>
         <button
           class="px-4 py-1.5 text-xs font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
@@ -45,41 +45,41 @@
     <!-- 拼豆宽度 -->
     <div class="flex items-center gap-3 flex-wrap">
       <div class="flex items-center gap-1.5">
-        <span class="text-xs text-gray-500">{{ $t('grid.width') }}</span>
+        <span class="text-xs text-gray-500 dark:text-gray-400">{{ $t('grid.width') }}</span>
         <div class="flex gap-1 flex-wrap">
           <button v-for="c in beadCountPresets" :key="c"
             class="px-2.5 py-1 rounded-md border text-xs font-medium transition cursor-pointer"
-            :class="displayCols === c ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary'"
+            :class="displayCols === c ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-primary dark:hover:border-green-400 hover:text-primary dark:hover:text-green-400'"
             @click="c !== displayCols && setBeadCount(c)">{{ c }}</button>
         </div>
-        <span class="text-xs text-gray-400">{{ $t('grid.widthUnit') }}</span>
+        <span class="text-xs text-gray-400 dark:text-gray-500">{{ $t('grid.widthUnit') }}</span>
       </div>
     </div>
 
     <!-- 单元格缩放 + 实图 + 展示模式 -->
     <div class="flex items-center gap-3 flex-wrap">
       <div class="flex items-center gap-1.5">
-        <span class="text-xs text-gray-500 whitespace-nowrap">{{ $t('grid.cellSize') }}</span>
-        <div class="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ $t('grid.cellSize') }}</span>
+        <div class="flex bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
           <button
-            class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0 flex items-center gap-1"
-            :class="!realSizeMode && cellSize === 6 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 dark:border-gray-600 last:border-r-0 flex items-center gap-1"
+            :class="!realSizeMode && cellSize === 6 ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
             @click="setCellSize(6)"
             :title="$t('grid.cellSmallTip')">
             <span class="inline-block w-2 h-2 rounded-sm border border-current opacity-60" />
             {{ $t('grid.cellSmall') }}
           </button>
           <button
-            class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0 flex items-center gap-1"
-            :class="!realSizeMode && cellSize === 8 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 dark:border-gray-600 last:border-r-0 flex items-center gap-1"
+            :class="!realSizeMode && cellSize === 8 ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
             @click="setCellSize(8)"
             :title="$t('grid.cellMediumTip')">
             <span class="inline-block w-2.5 h-2.5 rounded-sm border border-current opacity-60" />
             {{ $t('grid.cellMedium') }}
           </button>
           <button
-            class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0 flex items-center gap-1"
-            :class="!realSizeMode && cellSize === 12 ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 dark:border-gray-600 last:border-r-0 flex items-center gap-1"
+            :class="!realSizeMode && cellSize === 12 ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
             @click="setCellSize(12)"
             :title="$t('grid.cellLargeTip')">
             <span class="inline-block w-3 h-3 rounded-sm border border-current opacity-60" />
@@ -87,7 +87,7 @@
           </button>
           <button
             class="px-2.5 py-1 text-[10px] font-medium transition cursor-pointer flex items-center gap-1"
-            :class="realSizeMode ? 'bg-orange-500 text-white' : 'text-gray-600 hover:bg-gray-100'"
+            :class="realSizeMode ? 'bg-orange-500 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
             @click="realSizeMode = !realSizeMode"
             :title="$t('grid.cellRealTip')">
             <span class="inline-block w-3 h-3 rounded-sm border-2 border-current" />
@@ -97,25 +97,25 @@
       </div>
 
       <div class="flex items-center gap-1.5">
-        <span class="text-xs text-gray-500 whitespace-nowrap">{{ $t('grid.display') }}</span>
-        <div class="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ $t('grid.display') }}</span>
+        <div class="flex bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
           <button
-            class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
-            :class="displayMode === 'color' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 dark:border-gray-600 last:border-r-0"
+            :class="displayMode === 'color' ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
             @click="displayMode = 'color'"
             :title="$t('grid.modeColorTip')">
             {{ $t('grid.modeColor') }}
           </button>
           <button
-            class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
-            :class="displayMode === 'both' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 dark:border-gray-600 last:border-r-0"
+            :class="displayMode === 'both' ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
             @click="displayMode = 'both'"
             :title="$t('grid.modeRulerTip')">
             {{ $t('grid.modeRuler') }}
           </button>
           <button
-            class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 last:border-r-0"
-            :class="displayMode === 'coords' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'"
+            class="px-3 py-1 text-[10px] font-medium transition cursor-pointer border-r border-gray-200 dark:border-gray-600 last:border-r-0"
+            :class="displayMode === 'coords' ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
             @click="displayMode = 'coords'"
             :title="$t('grid.modeCoordsTip')">
             {{ $t('grid.modeCoords') }}
@@ -125,17 +125,17 @@
     </div>
 
     <!-- 实图模式：屏幕参数设置 -->
-    <div v-if="realSizeMode" class="flex items-center gap-2 flex-wrap bg-orange-50 rounded-lg px-3 py-2">
-      <span class="text-xs text-gray-500 whitespace-nowrap">{{ $t('grid.screen') }}</span>
-      <select v-model.number="screenDiagonal" class="w-14 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded bg-white focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none appearance-none cursor-pointer">
+    <div v-if="realSizeMode" class="flex items-center gap-2 flex-wrap bg-orange-50 dark:bg-orange-900/20 rounded-lg px-3 py-2">
+      <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ $t('grid.screen') }}</span>
+      <select v-model.number="screenDiagonal" class="w-14 px-1.5 py-0.5 text-[10px] border border-gray-300 dark:border-gray-500 rounded bg-white dark:bg-gray-700 dark:text-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none appearance-none cursor-pointer">
         <option :value="null" disabled>{{ $t('grid.screenSize') }}</option>
         <option v-for="s in commonScreenSizes" :key="s" :value="s">{{ s }}"</option>
       </select>
       <input v-model.number="screenResW" type="number" step="1" min="1" :placeholder="detectedResW ? String(detectedResW) : $t('grid.screenWidth')"
-        class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
-      <span class="text-[10px] text-gray-400">×</span>
+        class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 dark:border-gray-500 rounded bg-white dark:bg-gray-700 dark:text-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
+      <span class="text-[10px] text-gray-400 dark:text-gray-500">×</span>
       <input v-model.number="screenResH" type="number" step="1" min="1" :placeholder="detectedResH ? String(detectedResH) : $t('grid.screenHeight')"
-        class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 rounded focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
+        class="w-12 px-1.5 py-0.5 text-[10px] border border-gray-300 dark:border-gray-500 rounded bg-white dark:bg-gray-700 dark:text-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-400 outline-none" />
       <span v-if="screenPPI" class="text-[10px] text-gray-500">{{ $t('grid.screenPPI', { ppi: screenPPI }) }}<span v-if="dpr !== 1" class="text-orange-400">{{ $t('grid.screenDPR', { dpr }) }}</span></span>
       <span v-else class="text-[10px] text-orange-400">{{ $t('grid.screenIncomplete') }}</span>
       <div class="flex gap-1 flex-wrap">
@@ -201,10 +201,10 @@
     </div>
 
     <!-- 颜色编辑器 -->
-    <div v-if="editingIndex !== null" class="border border-gray-200 rounded-lg bg-white overflow-hidden" @click.stop>
-      <div class="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200">
-        <span class="text-xs font-medium">🎨 {{ editingIndex === -1 ? $t('grid.editorBatch', { count: selectedIndices.size }) : $t('grid.editorSingle', { index: editingIndex + 1 }) }}</span>
-        <button class="w-6 h-6 rounded-full border-none bg-transparent cursor-pointer flex items-center justify-center text-sm hover:bg-gray-200" @click="editingIndex = null">✕</button>
+    <div v-if="editingIndex !== null" class="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 overflow-hidden" @click.stop>
+      <div class="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+        <span class="text-xs font-medium dark:text-gray-200">🎨 {{ editingIndex === -1 ? $t('grid.editorBatch', { count: selectedIndices.size }) : $t('grid.editorSingle', { index: editingIndex + 1 }) }}</span>
+        <button class="w-6 h-6 rounded-full border-none bg-transparent cursor-pointer flex items-center justify-center text-sm hover:bg-gray-200 dark:hover:bg-gray-600 dark:text-gray-400" @click="editingIndex = null">✕</button>
       </div>
       <div class="flex flex-wrap gap-1 p-2.5 max-h-44 overflow-y-auto">
         <button v-for="c in allBeadColors" :key="c.code" class="w-9 h-9 rounded-md border-2 border-transparent cursor-pointer relative flex items-end justify-center hover:scale-125 hover:z-10 transition" :class="{ '!border-red-500 shadow-[0_0_0_2px_white,0_0_0_4px_#ff4444]': getCellColor(editingIndex === -1 ? [...selectedIndices][0] : editingIndex).code === c.code }" :style="{ background: c.hex }" :title="c.name" @click="applyColor(c)">
@@ -414,29 +414,39 @@ defineExpose({ downloadPNG: downloadWithMode, downloadSVG: downloadSVGWithMode, 
 
 <style scoped>
 .grid-scroll { overflow: auto; max-width: 100%; max-height: calc(100vh - 220px); border: 0.5px solid #e5e7eb; border-radius: 4px; }
+:global(.dark) .grid-scroll { border-color: #374151; }
 
 /* 纯颜色模式 */
 .bead-grid { display: grid; cursor: crosshair; width: fit-content; background: #fff; }
+:global(.dark) .bead-grid { background: #1f2937; }
 
 /* 标尺模式 */
 .ruler-grid { display: grid; cursor: crosshair; width: fit-content; background: #fff; }
+:global(.dark) .ruler-grid { background: #1f2937; }
 .ruler-corner { background: #f3f4f6; border: 0.5px solid #d1d5db; box-sizing: border-box; position: sticky; top: 0; left: 0; z-index: 5; }
+:global(.dark) .ruler-corner { background: #374151; border-color: #4b5563; }
 .ruler-cell { display: flex; align-items: center; justify-content: center; background: #f3f4f6; border: 0.5px solid #d1d5db; box-sizing: border-box; font-size: 6px; color: #6b7280; font-family: monospace; line-height: 1; user-select: none; }
+:global(.dark) .ruler-cell { background: #374151; border-color: #4b5563; color: #9ca3af; }
 .ruler-col { position: sticky; top: 0; z-index: 4; }
 .ruler-row { position: sticky; left: 0; z-index: 4; }
 
 /* 坐标格模式 */
 .coord-grid { display: grid; cursor: crosshair; width: fit-content; background: #fff; }
+:global(.dark) .coord-grid { background: #1f2937; }
 
 /* 通用单元格 */
 .bead-cell { flex-shrink: 0; border: 0.5px solid rgba(0,0,0,0.08); box-sizing: border-box; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; position: relative; }
+:global(.dark) .bead-cell { border-color: rgba(255,255,255,0.06); }
 .bead-cell:hover { transform: scale(1.15); z-index: 2; box-shadow: 0 0 6px rgba(0,0,0,0.3); }
+:global(.dark) .bead-cell:hover { box-shadow: 0 0 6px rgba(255,255,255,0.2); }
 .bead-cell.selected { outline: 2px solid #ff4444; outline-offset: -1px; z-index: 3; }
 .bead-cell.same-color { outline: 2px dashed #ffaa00; outline-offset: -1px; z-index: 1; }
 
 /* 坐标格单元格 */
 .coord-cell { flex-shrink: 0; border: 0.5px solid rgba(0,0,0,0.15); box-sizing: border-box; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+:global(.dark) .coord-cell { border-color: rgba(255,255,255,0.1); }
 .coord-cell:hover { transform: scale(1.15); z-index: 2; box-shadow: 0 0 6px rgba(0,0,0,0.3); }
+:global(.dark) .coord-cell:hover { box-shadow: 0 0 6px rgba(255,255,255,0.2); }
 .coord-cell.selected { outline: 2px solid #ff4444; outline-offset: -1px; z-index: 3; }
 .coord-cell.same-color { outline: 2px dashed #ffaa00; outline-offset: -1px; z-index: 1; }
 
