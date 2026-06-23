@@ -1,4 +1,4 @@
-import { ref, computed, watch, type Ref } from 'vue'
+import { ref, computed, watch, isRef, type Ref } from 'vue'
 import type { PixelInfo, BeadColor, RawPixel, ColorStrategyId } from '@/types'
 import { allBeadColors, findClosestBeadColor, computeColorInfo, mergeFragmentedColors } from '@/utils/colors'
 import { defaultStrategyId } from '@/utils/colorStrategies'
@@ -43,10 +43,12 @@ export interface BeadStats {
  */
 export function useBeadGrid(
   rawPixels: Ref<RawPixel[]>,
-  sourceCols: number,
-  sourceRows: number,
+  sourceCols: Ref<number> | number,
+  sourceRows: Ref<number> | number,
   strategyId: Ref<ColorStrategyId> = ref(defaultStrategyId),
 ) {
+  const _cols = isRef(sourceCols) ? sourceCols : ref(sourceCols)
+  const _rows = isRef(sourceRows) ? sourceRows : ref(sourceRows)
   // ========== 全量数据 ==========
   const allBeads = ref<PixelInfo[]>([])
 
@@ -82,26 +84,40 @@ export function useBeadGrid(
 
   /** 拼豆数量预设 */
   const beadCountPresets = computed(() => {
-    const candidates = [sourceCols, 128, 64, 32, 16, 8]
-    return candidates.filter(c => c <= sourceCols && c >= 2)
+    const sc = _cols.value
+    const candidates = [sc, 128, 64, 32, 16, 8]
+    return candidates.filter(c => c <= sc && c >= 2)
   })
 
   // 初始化：选取最接近 600px 网格宽度的预设值
-  if (sourceCols > 0) {
+  if (_cols.value > 0) {
     const targetCols = Math.max(1, Math.floor(600 / BEAD_SIZE))
-    let bestPreset = beadCountPresets.value[0] ?? sourceCols
+    let bestPreset = beadCountPresets.value[0] ?? _cols.value
     for (const c of beadCountPresets.value) {
       if (Math.abs(c - targetCols) < Math.abs(bestPreset - targetCols)) bestPreset = c
     }
-    step.value = Math.max(1, Math.ceil(sourceCols / (bestPreset || 1)))
+    step.value = Math.max(1, Math.ceil(_cols.value / (bestPreset || 1)))
   }
+
+  // cols 变化时重新初始化 step（如图片上传后从 0 变为实际值）
+  watch([_cols, _rows], ([c, r]) => {
+    if (c <= 0) return
+    const presets = beadCountPresets.value
+    if (presets.length === 0) return
+    const targetCols = Math.max(1, Math.floor(600 / BEAD_SIZE))
+    let bestPreset = presets[0]
+    for (const p of presets) {
+      if (Math.abs(p - targetCols) < Math.abs(bestPreset - targetCols)) bestPreset = p
+    }
+    step.value = Math.max(1, Math.ceil(c / (bestPreset || 1)))
+  })
 
   /** 由拼豆数量反算 step */
   function setBeadCount(count: number) {
-    step.value = Math.max(1, Math.ceil(sourceCols / count))
+    step.value = Math.max(1, Math.ceil(_cols.value / count))
   }
 
-  const maxStep = computed(() => Math.max(1, Math.floor(Math.min(sourceCols, sourceRows) / 2)))
+  const maxStep = computed(() => Math.max(1, Math.floor(Math.min(_cols.value, _rows.value) / 2)))
 
   // step 超过 maxStep 时自动下拉
   watch(maxStep, (m) => { if (step.value > m) step.value = m })
@@ -119,9 +135,9 @@ export function useBeadGrid(
   })
 
   /** 降采样后每行实际像素数 */
-  const displayCols = computed(() => Math.ceil(sourceCols / step.value))
+  const displayCols = computed(() => Math.ceil(_cols.value / step.value))
   /** 降采样后每列实际像素数 */
-  const displayRows = computed(() => Math.ceil(sourceRows / step.value))
+  const displayRows = computed(() => Math.ceil(_rows.value / step.value))
 
   const densityLabel = computed(() => {
     const pct = maxStep.value <= 1 ? 0 : (step.value - 1) / (maxStep.value - 1)

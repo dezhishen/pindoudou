@@ -8,20 +8,21 @@
     </header>
 
     <main class="flex-1 py-2 px-3 w-full">
-      <!-- 加载中 -->
-      <div v-if="loading" class="text-center py-10">
-        <div class="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin mx-auto mb-4" />
-        <p class="text-gray-500">{{ loadingText }}</p>
-      </div>
-
       <!-- 错误 -->
       <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-4 text-sm">
         {{ error }}
         <div class="mt-3"><button class="btn btn-outline" @click="error = ''">重新上传</button></div>
       </div>
 
-      <!-- 结果页（始终展示，无数据时为空占位） -->
-      <div class="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-2 items-start">
+      <!-- 结果页（始终展示） -->
+      <div class="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-2 items-start relative">
+        <!-- 加载叠加层 -->
+        <div v-if="loading" class="absolute inset-0 z-30 flex items-center justify-center bg-white/70 rounded-2xl">
+          <div class="flex flex-col items-center gap-3">
+            <div class="w-10 h-10 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
+            <p class="text-sm text-gray-500">{{ loadingText }}</p>
+          </div>
+        </div>
         <div class="flex flex-col gap-3 sticky top-4">
           <div class="card">
             <template v-if="imagePreviewUrl">

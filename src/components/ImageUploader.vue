@@ -12,6 +12,9 @@
     <h3 class="text-lg font-medium mb-2 text-gray-800">上传图片生成拼豆图案</h3>
     <p class="text-gray-500 text-sm">支持 JPG、PNG、GIF、WEBP 格式</p>
     <p class="mt-2 text-xs text-gray-400">点击或拖拽图片到此处</p>
+    <p class="mt-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-50 text-[10px] text-green-600 font-medium">
+      🔒 纯前端处理，图片不会上传到服务器
+    </p>
     <input
       ref="fileInput"
       type="file"
