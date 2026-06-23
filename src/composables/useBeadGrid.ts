@@ -61,7 +61,7 @@ export function useBeadGrid(
     mergeFragmentedColors(allBeads.value, 0.005, sid)
   }, { immediate: true })
 
-  // 策略切换时重新匹配
+  // 策略切换时重新匹配（保留拼豆宽度、尺寸等所有显示参数）
   watch(strategyId, (sid) => {
     if (!rawPixels.value.length) return
     allBeads.value = rawPixels.value.map(p => ({
@@ -70,6 +70,9 @@ export function useBeadGrid(
       color: findClosestBeadColor(p.r, p.g, p.b, sid),
     }))
     mergeFragmentedColors(allBeads.value, 0.005, sid)
+    // 颜色变化后清除选中和编辑状态
+    selectedIndices.value = new Set()
+    editingIndex.value = null
   })
 
   // ========== 精度/采样 ==========
