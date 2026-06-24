@@ -800,3 +800,33 @@ terms.s5Text:
   zh-CN: 我们保留随时修改本协议的权利。修改后的协议将在本页面上发布后立即生效。建议您定期查看本页面以了解最新条款。
   en: We reserve the right to modify these terms at any time. Modified terms will take effect immediately upon posting on this page. We recommend reviewing this page periodically for updates.
   zh-TW: 我們保留隨時修改本協議的權利。修改後的協議將在本頁面上發布後立即生效。建議您定期查看本頁面以了解最新條款。
+
+crop.title:
+  zh-CN: 裁剪图片
+  en: Crop Image
+  zh-TW: 裁剪圖片
+
+crop.cancel:
+  zh-CN: 跳过裁剪
+  en: Skip Crop
+  zh-TW: 跳過裁剪
+
+crop.confirm:
+  zh-CN: 确认裁剪
+  en: Confirm Crop
+  zh-TW: 確認裁剪
+
+crop.size:
+  zh-CN: '裁剪尺寸: '
+  en: 'Crop Size: '
+  zh-TW: '裁剪尺寸: '
+
+crop.reset:
+  zh-CN: 重置
+  en: Reset
+  zh-TW: 重置
+
+crop.btn:
+  zh-CN: ✂️ 裁剪
+  en: ✂️ Crop
+  zh-TW: ✂️ 裁剪

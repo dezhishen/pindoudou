@@ -19,11 +19,13 @@
             <div class="rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
               <img :src="imagePreviewUrl" :alt="$t('sidebar.altOriginal')" class="max-w-full h-auto block" />
             </div>
+            <button v-if="originalFile" class="btn btn-outline btn-block mt-2 text-xs" @click="showCropper = true">{{ $t('crop.btn') }}</button>
           </template>
           <template v-else>
             <ImageUploader @file-selected="handleFile" />
           </template>
         </div>
+        <button class="btn btn-outline btn-block text-xs" @click="openHistory">📋 {{ $t('app.history') }}</button>
         <div class="card">
           <h3 class="text-sm font-medium mb-2">🎯 {{ $t('sidebar.strategy') }}</h3>
           <div class="flex flex-col gap-1">
@@ -127,6 +129,15 @@
     </div>
 
     <Teleport to="body">
+      <ImageCropper
+        v-if="showCropper && imagePreviewUrl"
+        :src="imagePreviewUrl"
+        @confirm="onCropConfirm"
+        @cancel="onCropCancel"
+      />
+    </Teleport>
+
+    <Teleport to="body">
       <div v-if="showUploadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showUploadModal = false">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden dark:bg-gray-800">
           <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-gray-700">
@@ -191,6 +202,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import ImageUploader from '@/components/ImageUploader.vue'
+import ImageCropper from '@/components/ImageCropper.vue'
 import BeadGrid from '@/components/BeadGrid.vue'
 import { processImage } from '@/utils/imageProcessor'
 import { saveHistory, getHistoryList, getHistoryRecord, clearHistory, toggleFavorite, exportRecords, importRecords, type HistoryMeta } from '@/utils/history'
@@ -209,10 +221,12 @@ const drawerOpen = ref(false)
 const showDownloadMenu = ref(false)
 const showUploadModal = ref(false)
 const showHistory = ref(false)
+const showCropper = ref(false)
 const historyList = ref<HistoryMeta[]>([])
 const checkedIds = ref<Set<number>>(new Set())
 const historyFavCount = ref(0)
 let currentFileName = ''
+const originalFile = ref<File | null>(null)
 
 function toggleCheck(id: number) {
   const s = new Set(checkedIds.value)
@@ -254,8 +268,10 @@ const fillPresets = ['#FFFFFF', '#EEEEEE', '#CCCCCC', '#000000', '#FF0000', '#00
 
 async function handleFile(file: File) {
   currentFileName = file.name
+  originalFile.value = file
   imagePreviewUrl.value = URL.createObjectURL(file)
-  await processAndSetResult(file)
+  // 上传后立即弹出裁剪窗口，由用户决定裁剪或跳过
+  showCropper.value = true
 }
 
 function onModalUpload(file: File) {
@@ -263,7 +279,23 @@ function onModalUpload(file: File) {
   handleFile(file)
 }
 
-async function processAndSetResult(file: File) {
+async function onCropConfirm(blob: Blob) {
+  showCropper.value = false
+  // 用裁剪后的 blob 更新预览
+  if (imagePreviewUrl.value) URL.revokeObjectURL(imagePreviewUrl.value)
+  imagePreviewUrl.value = URL.createObjectURL(blob)
+  await processAndSetResult(blob)
+}
+
+async function onCropCancel() {
+  showCropper.value = false
+  // 用户跳过裁剪，直接用原图处理
+  if (originalFile.value) {
+    await processAndSetResult(originalFile.value)
+  }
+}
+
+async function processAndSetResult(file: File | Blob) {
   loading.value = true; loadingText.value = $t('app.loading'); error.value = ''
   try {
     const data = await processImage(file, 256, fillColor.value, currentId.value)
@@ -276,7 +308,7 @@ async function processAndSetResult(file: File) {
     const thumb = await createThumbnail(file)
     if (thumb) {
       await saveHistory({
-        thumbnail: thumb, fileName: file.name,
+        thumbnail: thumb, fileName: currentFileName,
         originalWidth: data.originalWidth, originalHeight: data.originalHeight,
         width: data.width, height: data.height,
         pixelsJson: JSON.stringify(result.value!.pixels),
@@ -288,7 +320,7 @@ async function processAndSetResult(file: File) {
   finally { loading.value = false }
 }
 
-function createThumbnail(file: File): Promise<string | null> {
+function createThumbnail(file: File | Blob): Promise<string | null> {
   return new Promise((resolve) => {
     const img = new Image()
     img.onload = () => {
@@ -311,6 +343,8 @@ function resetAll() {
   transparentIndices.value = []
   if (imagePreviewUrl.value) { URL.revokeObjectURL(imagePreviewUrl.value); imagePreviewUrl.value = '' }
   currentFileName = ''
+  originalFile.value = null
+  showCropper.value = false
   showUploadModal.value = true
 }
 

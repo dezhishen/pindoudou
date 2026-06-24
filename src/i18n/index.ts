@@ -165,6 +165,12 @@ const messages: Record<string, Record<string, string>> = {
     'terms.s4Text': '本应用按"现状"提供，不提供任何明示或暗示的保证。开发者不对因使用本应用而产生的任何直接或间接损失承担责任。颜色匹配结果仅供参考，实际拼豆效果可能因屏幕色差、豆子批次等因素有所差异。',
     'terms.s5Title': '条款变更',
     'terms.s5Text': '我们保留随时修改本协议的权利。修改后的协议将在本页面上发布后立即生效。建议您定期查看本页面以了解最新条款。',
+    'crop.title': '裁剪图片',
+    'crop.cancel': '跳过裁剪',
+    'crop.confirm': '确认裁剪',
+    'crop.size': '裁剪尺寸: ',
+    'crop.reset': '重置',
+    'crop.btn': '✂️ 裁剪',
   },
   'en': {
     'app.title': 'Bead Pattern Generator',
@@ -327,6 +333,12 @@ const messages: Record<string, Record<string, string>> = {
     'terms.s4Text': 'This application is provided "as is" without any express or implied warranties. The developer is not liable for any direct or indirect damages arising from the use of this application. Color matching results are for reference only, and actual bead effects may vary due to screen color differences, bead batches, and other factors.',
     'terms.s5Title': 'Changes to Terms',
     'terms.s5Text': 'We reserve the right to modify these terms at any time. Modified terms will take effect immediately upon posting on this page. We recommend reviewing this page periodically for updates.',
+    'crop.title': 'Crop Image',
+    'crop.cancel': 'Skip Crop',
+    'crop.confirm': 'Confirm Crop',
+    'crop.size': 'Crop Size: ',
+    'crop.reset': 'Reset',
+    'crop.btn': '✂️ Crop',
   },
   'zh-TW': {
     'app.title': '拼豆圖案生成器',
@@ -489,6 +501,12 @@ const messages: Record<string, Record<string, string>> = {
     'terms.s4Text': '本應用按"現狀"提供，不提供任何明示或暗示的保證。開發者不對因使用本應用而產生的任何直接或間接損失承擔責任。顏色匹配結果僅供參考，實際拼豆效果可能因螢幕色差、豆子批次等因素有所差異。',
     'terms.s5Title': '條款變更',
     'terms.s5Text': '我們保留隨時修改本協議的權利。修改後的協議將在本頁面上發布後立即生效。建議您定期查看本頁面以了解最新條款。',
+    'crop.title': '裁剪圖片',
+    'crop.cancel': '跳過裁剪',
+    'crop.confirm': '確認裁剪',
+    'crop.size': '裁剪尺寸: ',
+    'crop.reset': '重置',
+    'crop.btn': '✂️ 裁剪',
   },
 }
 
