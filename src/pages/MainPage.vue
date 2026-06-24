@@ -25,7 +25,10 @@
             <ImageUploader @file-selected="handleFile" />
           </template>
         </div>
-        <button class="btn btn-outline btn-block text-xs" @click="openHistory">📋 {{ $t('app.history') }}</button>
+        <div class="flex gap-1.5">
+          <button class="btn btn-outline flex-1 text-xs" @click="resetAll">🔄 {{ $t('app.reupload') }}</button>
+          <button class="btn btn-outline px-2.5 text-xs" @click="openHistory" :title="$t('app.history')">📋</button>
+        </div>
         <div class="card">
           <h3 class="text-sm font-medium mb-2">🎯 {{ $t('sidebar.strategy') }}</h3>
           <div class="flex flex-col gap-1">
@@ -118,7 +121,7 @@
             </div>
           </div>
           <button class="btn btn-outline btn-block" @click="copyPaletteText">📋 {{ $t('sidebar.copyPalette') }}</button>
-          <button class="btn btn-ghost btn-block" @click="resetAll">🔄 {{ $t('app.reupload') }}</button>
+          <button class="btn btn-outline btn-block text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20" @click="downloadCyber">🌆 下载赛博风 PNG</button>
         </div>
       </div>
       <div class="min-w-0">
@@ -432,6 +435,7 @@ function changeFillColor(color: string) {
 function onGridInfo(info: { colorInfo: { color: BeadColor; count: number }[] }) { colorInfo.value = info.colorInfo }
 function downloadGrid() { gridRef.value?.downloadPNG() }
 function downloadSVGGrid() { gridRef.value?.downloadSVG() }
+function downloadCyber() { gridRef.value?.downloadCyberPNG() }
 function copyPaletteText() {
   if (colorInfo.value.length) navigator.clipboard.writeText(colorInfo.value.map(c => $t('app.copyFormat', { name: $t('color.' + c.color.code) || c.color.name, hex: c.color.hex, count: c.count })).join('\n'))
 }

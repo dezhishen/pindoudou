@@ -120,8 +120,40 @@
             :title="$t('grid.modeCoordsTip')">
             🔢 {{ $t('grid.modeCoords') }}
           </button>
+          <button
+            class="px-3 py-1 text-[10px] font-medium transition cursor-pointer"
+            :class="displayMode === 'cyber' ? 'bg-purple-600 text-white' : 'text-purple-500 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30'"
+            @click="displayMode = 'cyber'"
+            title="赛博朋克风格预览">
+            🌆 赛博
+          </button>
         </div>
       </div>
+    </div>
+
+    <!-- 赛博参数调节 -->
+    <div v-if="displayMode === 'cyber'" class="bg-purple-50 dark:bg-purple-900/15 rounded-lg px-3 py-2 flex items-center gap-3 flex-wrap">
+      <label class="flex items-center gap-1">
+        <span class="text-[10px] text-purple-600 dark:text-purple-400">💡发光</span>
+        <input type="number" :min="0" :max="30" v-model.number="cyberGlow"
+          class="w-10 px-1 py-0.5 text-[10px] text-center border border-purple-200 dark:border-purple-700 rounded bg-white dark:bg-gray-700 dark:text-gray-200 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 outline-none" />
+      </label>
+      <label class="flex items-center gap-1">
+        <span class="text-[10px] text-purple-600 dark:text-purple-400">📐圆角%</span>
+        <input type="number" :min="0" :max="100" v-model.number="cyberRoundnessPct"
+          class="w-10 px-1 py-0.5 text-[10px] text-center border border-purple-200 dark:border-purple-700 rounded bg-white dark:bg-gray-700 dark:text-gray-200 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 outline-none" />
+      </label>
+      <label class="flex items-center gap-1">
+        <span class="text-[10px] text-purple-600 dark:text-purple-400">📺扫描线%</span>
+        <input type="number" :min="0" :max="20" v-model.number="cyberScanlinePct"
+          class="w-10 px-1 py-0.5 text-[10px] text-center border border-purple-200 dark:border-purple-700 rounded bg-white dark:bg-gray-700 dark:text-gray-200 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 outline-none" />
+      </label>
+      <label class="flex items-center gap-1">
+        <span class="text-[10px] text-purple-600 dark:text-purple-400">🌘暗角%</span>
+        <input type="number" :min="0" :max="100" v-model.number="cyberVignettePct"
+          class="w-10 px-1 py-0.5 text-[10px] text-center border border-purple-200 dark:border-purple-700 rounded bg-white dark:bg-gray-700 dark:text-gray-200 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 outline-none" />
+      </label>
+      <button class="text-[10px] text-purple-400 hover:text-purple-600 transition" @click="resetCyberParams">↺重置</button>
     </div>
 
     <!-- 实图模式：屏幕参数设置 -->
@@ -157,6 +189,11 @@
           @click.stop="toggleSelect(b.origIdx, $event.shiftKey)"
           @contextmenu.prevent="startEdit(b.origIdx)" />
       </div>
+    </div>
+
+    <!-- ============ 模式「赛博」：赛博朋克风格预览 ============ -->
+    <div v-else-if="displayMode === 'cyber'" class="grid-scroll" ref="cyberScrollRef">
+      <canvas ref="cyberCanvasRef" class="cyber-canvas" />
     </div>
 
     <!-- ============ 模式「标尺」：颜色网格 + 行列坐标标尺 ============ -->
@@ -216,12 +253,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, nextTick } from 'vue'
 import type { RawPixel, ColorStrategyId } from '@/types'
 import { allBeadColors } from '@/utils/colors'
 import { useBeadGrid } from '@/composables/useBeadGrid'
 import type { DisplayBead } from '@/composables/useBeadGrid'
 import { defaultStrategyId } from '@/utils/colorStrategies'
+import { renderCyberPreview } from '@/composables/useCyberPreview'
 import { $t } from '@/i18n'
 
 const props = defineProps<{
@@ -252,11 +290,32 @@ const {
 } = useBeadGrid(pixelRef, colsRef, rowsRef, strategyRef, strategyOptionsRef)
 
 // ========== 展示模式 ==========
-type DisplayMode = 'color' | 'both' | 'coords'
+type DisplayMode = 'color' | 'both' | 'coords' | 'cyber'
 const displayMode = ref<DisplayMode>('color')
 
 // ========== 单元格缩放 ==========
 const cellSize = ref(8)  // 小6 / 中8 / 大12
+
+// ========== 赛博预览 ==========
+const cyberCanvasRef = ref<HTMLCanvasElement>()
+const cyberScrollRef = ref<HTMLDivElement>()
+
+// 赛博参数
+const cyberGlow = ref(10)
+const cyberRoundnessPct = ref(20)
+const cyberScanlinePct = ref(5)
+const cyberVignettePct = ref(45)
+
+const cyberRoundness = computed(() => cyberRoundnessPct.value / 100)
+const cyberScanline = computed(() => cyberScanlinePct.value / 100)
+const cyberVignette = computed(() => cyberVignettePct.value / 100)
+
+function resetCyberParams() {
+  cyberGlow.value = 10
+  cyberRoundnessPct.value = 20
+  cyberScanlinePct.value = 5
+  cyberVignettePct.value = 45
+}
 
 // ========== 实图模式 ==========
 const realSizeMode = ref(false)
@@ -354,6 +413,29 @@ const effectiveCellSize = computed(() => {
   return cellSize.value
 })
 
+// ========== 赛博预览渲染 ==========
+function renderCyber() {
+  const canvas = cyberCanvasRef.value
+  if (!canvas || displayMode.value !== 'cyber') return
+  const size = Math.max(6, effectiveCellSize.value)
+  renderCyberPreview(displayBeads.value, canvas, {
+    cellSize: size,
+    cols: displayCols.value,
+    rows: displayRows.value,
+    glowIntensity: cyberGlow.value,
+    beadRoundness: cyberRoundness.value,
+    scanlineOpacity: cyberScanline.value,
+    vignetteStrength: cyberVignette.value,
+  })
+}
+
+watch([displayMode, effectiveCellSize, displayCols, displayRows, displayBeads,
+       cyberGlow, cyberRoundness, cyberScanline, cyberVignette], () => {
+  if (displayMode.value === 'cyber') {
+    nextTick(() => renderCyber())
+  }
+}, { deep: true })
+
 /** 坐标格模式下单元格尺寸（约为颜色模式的2.75倍以便显示文字） */
 const coordCellSize = computed(() => Math.round(effectiveCellSize.value * 2.75))
 
@@ -409,10 +491,25 @@ function rowBeads(y: number): DisplayBead[] {
 watch(() => stats.value, (s) => { emit('update-info', { colorInfo: s.colorInfo }) }, { deep: true, immediate: true })
 
 /** 根据当前展示模式下载 */
-function downloadWithMode() { downloadPNG(displayMode.value) }
-function downloadSVGWithMode() { downloadSVG(displayMode.value) }
+function downloadWithMode() {
+  if (displayMode.value === 'cyber') {
+    downloadCyberPNG()
+    return
+  }
+  downloadPNG(displayMode.value as 'color' | 'both' | 'coords')
+}
+function downloadSVGWithMode() { downloadSVG(displayMode.value as 'color' | 'both' | 'coords') }
 
-defineExpose({ downloadPNG: downloadWithMode, downloadSVG: downloadSVGWithMode, selectByColor, toggleRealSize: () => { realSizeMode.value = !realSizeMode.value }, realSizeMode })
+function downloadCyberPNG() {
+  const canvas = cyberCanvasRef.value
+  if (!canvas) return
+  const link = document.createElement('a')
+  link.download = `pindoudou-cyber-${Date.now()}.png`
+  link.href = canvas.toDataURL('image/png')
+  link.click()
+}
+
+defineExpose({ downloadPNG: downloadWithMode, downloadSVG: downloadSVGWithMode, selectByColor, downloadCyberPNG, toggleRealSize: () => { realSizeMode.value = !realSizeMode.value }, realSizeMode })
 </script>
 
 <style scoped>
@@ -448,6 +545,9 @@ defineExpose({ downloadPNG: downloadWithMode, downloadSVG: downloadSVGWithMode, 
 /* 坐标格单元格 */
 .coord-cell { flex-shrink: 0; border: 0.5px solid rgba(0,0,0,0.15); box-sizing: border-box; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 :global(.dark) .coord-cell { border-color: rgba(255,255,255,0.1); }
+
+/* 赛博预览画布 */
+.cyber-canvas { display: block; image-rendering: pixelated; }
 .coord-cell:hover { transform: scale(1.15); z-index: 2; box-shadow: 0 0 6px rgba(0,0,0,0.3); }
 :global(.dark) .coord-cell:hover { box-shadow: 0 0 6px rgba(255,255,255,0.2); }
 .coord-cell.selected { outline: 2px solid #ff4444; outline-offset: -1px; z-index: 3; }
