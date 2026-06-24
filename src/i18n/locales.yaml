@@ -830,3 +830,83 @@ crop.btn:
   zh-CN: ✂️ 裁剪
   en: ✂️ Crop
   zh-TW: ✂️ 裁剪
+
+tab.image:
+  zh-CN: 图片转拼豆
+  en: Image to Beads
+  zh-TW: 圖片轉拼豆
+
+tab.text:
+  zh-CN: 文字转拼豆
+  en: Text to Beads
+  zh-TW: 文字轉拼豆
+
+text.placeholder:
+  zh-CN: 输入要转换的文字...
+  en: Enter text to convert...
+  zh-TW: 輸入要轉換的文字...
+
+text.fontSize:
+  zh-CN: 字号
+  en: Font Size
+  zh-TW: 字號
+
+text.generate:
+  zh-CN: 生成拼豆
+  en: Generate
+  zh-TW: 生成拼豆
+
+text.clear:
+  zh-CN: 清空
+  en: Clear
+  zh-TW: 清空
+
+text.comingSoon:
+  zh-CN: 功能开发中，敬请期待...
+  en: Coming soon...
+  zh-TW: 功能開發中，敬請期待...
+
+text.colorMode:
+  zh-CN: 颜色模式
+  en: Color Mode
+  zh-TW: 顏色模式
+
+text.gradient:
+  zh-CN: 渐变
+  en: Gradient
+  zh-TW: 漸變
+
+text.solid:
+  zh-CN: 纯色
+  en: Solid
+  zh-TW: 純色
+
+text.charColor:
+  zh-CN: '第{index}字颜色'
+  en: 'Char {index} Color'
+  zh-TW: '第{index}字顏色'
+
+text.charColorTip:
+  zh-CN: '点击设置第{index}个字的颜色'
+  en: 'Click to set color for character {index}'
+  zh-TW: '點擊設定第{index}個字的顏色'
+
+text.font:
+  zh-CN: 字体
+  en: Font
+  zh-TW: 字體
+
+text.charCellSize:
+  zh-CN: 每字格数
+  en: Beads/Char
+  zh-TW: 每字格數
+
+text.charCellUnit:
+  zh-CN: 格/字
+  en: /char
+  zh-TW: 格/字
+
+text.preview:
+  zh-CN: 预览原图
+  en: Preview
+  zh-TW: 預覽原圖

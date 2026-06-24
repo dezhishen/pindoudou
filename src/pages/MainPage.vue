@@ -5,6 +5,20 @@
       <div class="mt-3"><button class="btn btn-outline" @click="error = ''">{{ $t('app.close') }}</button></div>
     </div>
 
+    <!-- Tab 切换 -->
+    <div class="flex mb-3 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 gap-1 w-fit">
+      <button
+        class="px-4 py-1.5 rounded-lg text-xs font-medium transition"
+        :class="tabMode === 'image' ? 'bg-white dark:bg-gray-700 text-primary dark:text-green-400 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+        @click="tabMode = 'image'"
+      >📷 {{ $t('tab.image') }}</button>
+      <button
+        class="px-4 py-1.5 rounded-lg text-xs font-medium transition"
+        :class="tabMode === 'text' ? 'bg-white dark:bg-gray-700 text-primary dark:text-green-400 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+        @click="tabMode = 'text'"
+      >🔤 {{ $t('tab.text') }}</button>
+    </div>
+
     <div class="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-2 items-start relative">
       <div v-if="loading" class="absolute inset-0 z-30 flex items-center justify-center bg-white/70 dark:bg-gray-900/70 rounded-2xl">
         <div class="flex flex-col items-center gap-3">
@@ -13,7 +27,8 @@
         </div>
       </div>
       <div class="flex flex-col gap-3 sticky top-4">
-        <div class="card">
+        <!-- 图片模式：上传/预览 -->
+        <div v-if="tabMode === 'image'" class="card">
           <template v-if="imagePreviewUrl">
             <h3 class="text-sm font-medium mb-2">🖼️ {{ $t('sidebar.original') }}</h3>
             <div class="rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
@@ -25,11 +40,112 @@
             <ImageUploader @file-selected="handleFile" />
           </template>
         </div>
+
+        <!-- 文字模式：输入区 -->
+        <div v-else class="card">
+          <h3 class="text-sm font-medium mb-2">🔤 {{ $t('tab.text') }}</h3>
+
+          <!-- 文字渲染预览按钮 -->
+          <button v-if="textPreviewUrl" class="text-[10px] text-purple-500 border border-dashed border-purple-300 dark:border-purple-700 rounded px-2 py-0.5 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition mb-2" @click="showTextPreview = true">🔍 {{ $t('text.preview') }}</button>
+          <textarea
+            v-model="textInput"
+            class="w-full h-20 px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-200 resize-none focus:border-primary focus:ring-1 focus:ring-primary outline-none placeholder-gray-300 dark:placeholder-gray-500"
+            :placeholder="$t('text.placeholder')"
+            @input="onTextChange"
+          ></textarea>
+
+          <!-- 逐字颜色预览条 -->
+          <div v-if="textChars.length > 0" class="flex flex-wrap gap-0.5 mt-2">
+            <button
+              v-for="(ch, i) in textChars" :key="i"
+              class="w-6 h-6 rounded text-[10px] font-medium border-2 transition cursor-pointer flex items-center justify-center"
+              :class="selectedCharIndex === i ? 'border-primary scale-110 shadow-sm' : 'border-gray-200 dark:border-gray-600 hover:border-gray-400'"
+              :style="{ background: getCharColor(i), color: isLightColor(getCharColor(i)) ? '#000' : '#fff' }"
+              :title="$t('text.charColorTip', { index: i + 1 })"
+              @click="selectedCharIndex = i"
+            >{{ ch }}</button>
+          </div>
+
+          <!-- 颜色模式切换 -->
+          <div class="flex items-center gap-2 mt-2">
+            <span class="text-[10px] text-gray-400">{{ $t('text.colorMode') }}</span>
+            <div class="flex bg-white dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600 overflow-hidden">
+              <button class="px-2 py-0.5 text-[10px] transition cursor-pointer"
+                :class="textColorMode === 'gradient' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-600'"
+                @click="textColorMode = 'gradient'">{{ $t('text.gradient') }}</button>
+              <button class="px-2 py-0.5 text-[10px] transition cursor-pointer"
+                :class="textColorMode === 'solid' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-600'"
+                @click="textColorMode = 'solid'">{{ $t('text.solid') }}</button>
+            </div>
+          </div>
+
+          <!-- 渐变颜色选择 -->
+          <div v-if="textColorMode === 'gradient'" class="flex items-center gap-2 mt-2 flex-wrap">
+            <div class="flex items-center gap-1">
+              <input type="color" v-model="textGradientStart" class="w-5 h-5 rounded cursor-pointer border-0 p-0" />
+              <span class="text-[10px] text-gray-400">→</span>
+              <input type="color" v-model="textGradientEnd" class="w-5 h-5 rounded cursor-pointer border-0 p-0" />
+            </div>
+            <div class="flex gap-1">
+              <button v-for="p in gradientPresets" :key="p.label"
+                class="w-5 h-5 rounded-full border border-gray-300 dark:border-gray-600 cursor-pointer hover:scale-110 transition"
+                :style="{ background: `linear-gradient(to right, ${p.start}, ${p.end})` }"
+                :title="p.label"
+                @click="textGradientStart = p.start; textGradientEnd = p.end"
+              />
+            </div>
+          </div>
+
+          <!-- 纯色：当前选中字的颜色 -->
+          <div v-if="textColorMode === 'solid' && selectedCharIndex !== null" class="flex items-center gap-1 mt-2">
+            <span class="text-[10px] text-gray-400">{{ $t('text.charColor', { index: selectedCharIndex + 1 }) }}</span>
+            <input type="color" :value="getCharColor(selectedCharIndex)" @input="setCharColor(selectedCharIndex, ($event.target as HTMLInputElement).value)" class="w-5 h-5 rounded cursor-pointer border-0 p-0" />
+            <div class="flex gap-0.5 ml-1">
+              <button v-for="c in solidColorPresets" :key="c"
+                class="w-4 h-4 rounded-sm border border-gray-300 dark:border-gray-600 cursor-pointer hover:scale-110 transition"
+                :style="{ background: c }"
+                @click="setCharColor(selectedCharIndex, c)"
+              />
+            </div>
+          </div>
+
+          <!-- 字号 + 字体 -->
+          <div class="flex items-center gap-2 mt-2">
+            <span class="text-[10px] text-gray-400 whitespace-nowrap">{{ $t('text.fontSize') }}</span>
+            <select v-model.number="textFontSize" class="px-2 py-1 text-[10px] border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700 dark:text-gray-200 outline-none">
+              <option :value="16">16px</option>
+              <option :value="24">24px</option>
+              <option :value="32">32px</option>
+              <option :value="48">48px</option>
+              <option :value="64">64px</option>
+              <option :value="96">96px</option>
+              <option :value="128">128px</option>
+            </select>
+            <span class="text-[10px] text-gray-400 whitespace-nowrap">{{ $t('text.font') }}</span>
+            <select v-model="textFontFamily" class="px-2 py-1 text-[10px] border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700 dark:text-gray-200 outline-none flex-1 min-w-0">
+              <option v-for="f in fontList" :key="f.value" :value="f.value">{{ f.label }}</option>
+            </select>
+          </div>
+
+          <!-- 每字格数 -->
+          <div class="flex items-center gap-2 mt-2">
+            <span class="text-[10px] text-gray-400">{{ $t('text.charCellSize') }}</span>
+            <input type="number" :min="0" :max="128" v-model.number="textCharCellSize" placeholder="auto"
+              class="w-14 px-1.5 py-0.5 text-[10px] text-center border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700 dark:text-gray-200 outline-none focus:border-primary" />
+            <span class="text-[10px] text-gray-400">{{ $t('text.charCellUnit') }}</span>
+          </div>
+
+          <button class="btn btn-primary btn-block mt-3 text-xs" :disabled="!textInput.trim()" @click="generateTextBeads">🔤 {{ $t('text.generate') }}</button>
+        </div>
+
+        <!-- 重新上传 / 历史（共用） -->
         <div class="flex gap-1.5">
-          <button class="btn btn-outline flex-1 text-xs" @click="resetAll">🔄 {{ $t('app.reupload') }}</button>
+          <button v-if="tabMode === 'image'" class="btn btn-outline flex-1 text-xs" @click="resetAll">🔄 {{ $t('app.reupload') }}</button>
+          <button v-else class="btn btn-outline flex-1 text-xs" @click="resetAll">🔄 {{ $t('text.clear') }}</button>
           <button class="btn btn-outline px-2.5 text-xs" @click="openHistory" :title="$t('app.history')">📋</button>
         </div>
-        <div class="card">
+        <!-- 图片模式：颜色策略 -->
+        <div v-if="tabMode === 'image'" class="card">
           <h3 class="text-sm font-medium mb-2">🎯 {{ $t('sidebar.strategy') }}</h3>
           <div class="flex flex-col gap-1">
             <label v-for="s in strategies" :key="s.id"
@@ -68,7 +184,7 @@
             </div>
           </div>
         </div>
-        <div v-if="transparentIndices.length > 0" class="card">
+        <div v-if="tabMode === 'image' && transparentIndices.length > 0" class="card">
           <div class="flex items-center justify-between mb-2">
             <h3 class="text-sm font-medium">🔲 {{ $t('sidebar.transparent') }}</h3>
             <span class="text-xs text-gray-400">{{ $t('sidebar.transparentCount', { count: transparentIndices.length }) }}</span>
@@ -141,6 +257,18 @@
     </Teleport>
 
     <Teleport to="body">
+      <div v-if="showTextPreview && textPreviewUrl" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="showTextPreview = false">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl mx-4 max-h-[85vh] overflow-auto p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold dark:text-white">🔍 {{ $t('text.preview') }}</h3>
+            <button class="w-7 h-7 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center text-gray-400 text-lg transition" @click="showTextPreview = false">✕</button>
+          </div>
+          <img :src="textPreviewUrl" alt="text preview" class="block" style="image-rendering: pixelated" />
+        </div>
+      </div>
+    </Teleport>
+
+    <Teleport to="body">
       <div v-if="showUploadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showUploadModal = false">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden dark:bg-gray-800">
           <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-gray-700">
@@ -208,6 +336,7 @@ import ImageUploader from '@/components/ImageUploader.vue'
 import ImageCropper from '@/components/ImageCropper.vue'
 import BeadGrid from '@/components/BeadGrid.vue'
 import { processImage } from '@/utils/imageProcessor'
+import { renderTextToPixels, FONT_LIST, GRADIENT_PRESETS, SOLID_COLOR_PRESETS } from '@/utils/textProcessor'
 import { saveHistory, getHistoryList, getHistoryRecord, clearHistory, toggleFavorite, exportRecords, importRecords, type HistoryMeta } from '@/utils/history'
 import { showToast, showConfirm } from '@/composables/useNotify'
 import { $t } from '@/i18n'
@@ -218,6 +347,7 @@ import { useColorStrategy } from '@/composables/useColorStrategy'
 const loading = ref(false)
 const loadingText = ref('')
 const error = ref('')
+const tabMode = ref<'image' | 'text'>('image')
 const result = ref<ProcessResult | null>(null)
 const imagePreviewUrl = ref('')
 const drawerOpen = ref(false)
@@ -225,11 +355,123 @@ const showDownloadMenu = ref(false)
 const showUploadModal = ref(false)
 const showHistory = ref(false)
 const showCropper = ref(false)
+const showTextPreview = ref(false)
 const historyList = ref<HistoryMeta[]>([])
 const checkedIds = ref<Set<number>>(new Set())
 const historyFavCount = ref(0)
 let currentFileName = ''
 const originalFile = ref<File | null>(null)
+
+// ========== 文字模式 ==========
+const textInput = ref('')
+const textFontFamily = ref(FONT_LIST[0].value)
+const textFontSize = ref(48)
+const textCharCellSize = ref(0)  // 0=自动
+const textPreviewUrl = ref('')
+const textColorMode = ref<'gradient' | 'solid'>('gradient')
+const textGradientStart = ref('#FF0000')
+const textGradientEnd = ref('#0066FF')
+const textCharColors = ref<Record<number, string>>({})
+const selectedCharIndex = ref<number | null>(null)
+const fontList = FONT_LIST
+const gradientPresets = GRADIENT_PRESETS
+const solidColorPresets = SOLID_COLOR_PRESETS
+
+const textChars = computed(() => [...textInput.value].filter(ch => ch !== '\n' && ch !== '\r'))
+const charCount = computed(() => textChars.value.length)
+
+function onTextChange() {
+  textCharColors.value = {}
+  selectedCharIndex.value = null
+}
+
+function getCharColor(index: number): string {
+  if (textCharColors.value[index]) return textCharColors.value[index]
+  if (textColorMode.value === 'gradient') {
+    const t = textChars.value.length > 1 ? index / (textChars.value.length - 1) : 0
+    return interpolateHex(textGradientStart.value, textGradientEnd.value, t)
+  }
+  return '#000000'
+}
+
+function setCharColor(index: number, color: string) {
+  textCharColors.value = { ...textCharColors.value, [index]: color }
+}
+
+function isLightColor(hex: string): boolean {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return (r * 299 + g * 587 + b * 114) / 1000 > 150
+}
+
+function interpolateHex(c1: string, c2: string, t: number): string {
+  const r1 = parseInt(c1.slice(1, 3), 16), g1 = parseInt(c1.slice(3, 5), 16), b1 = parseInt(c1.slice(5, 7), 16)
+  const r2 = parseInt(c2.slice(1, 3), 16), g2 = parseInt(c2.slice(3, 5), 16), b2 = parseInt(c2.slice(5, 7), 16)
+  const r = Math.round(r1 + (r2 - r1) * t), g = Math.round(g1 + (g2 - g1) * t), b = Math.round(b1 + (b2 - b1) * t)
+  return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')
+}
+
+async function generateTextBeads() {
+  const rawText = textInput.value.trim()
+  if (!rawText) return
+
+  // 标准化换行符
+  const text = rawText.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+
+  loading.value = true; loadingText.value = $t('app.loading'); error.value = ''
+  try {
+    const { pixels: rawPixels, width, height } = await renderTextToPixels({
+      text, fontFamily: textFontFamily.value, fontSize: textCharCellSize.value || textFontSize.value,
+      charColors: textCharColors.value,
+      gradient: textColorMode.value === 'gradient'
+        ? { start: textGradientStart.value, end: textGradientEnd.value }
+        : undefined,
+      defaultColor: '#000000', bgColor: '#FFFFFF',
+    })
+
+    result.value = { width, height, originalWidth: width, originalHeight: height, pixels: rawPixels }
+    transparentIndices.value = []
+    imagePreviewUrl.value = ''
+    currentFileName = `text-${text.slice(0, 10)}`
+
+    // 生成文字预览图
+    const previewCanvas = document.createElement('canvas')
+    previewCanvas.width = width; previewCanvas.height = height
+    const pctx = previewCanvas.getContext('2d')!
+    for (const p of rawPixels) {
+      pctx.fillStyle = `rgb(${p.r},${p.g},${p.b})`
+      pctx.fillRect(p.x, p.y, 1, 1)
+    }
+    if (textPreviewUrl.value) URL.revokeObjectURL(textPreviewUrl.value)
+    textPreviewUrl.value = previewCanvas.toDataURL('image/png')
+    originalFile.value = null
+
+    // 生成缩略图并保存历史
+    const thumbCanvas = document.createElement('canvas')
+    const maxThumb = 200
+    const scale = Math.min(1, maxThumb / Math.max(width, height))
+    thumbCanvas.width = Math.round(width * scale)
+    thumbCanvas.height = Math.round(height * scale)
+    const thumbCtx = thumbCanvas.getContext('2d')!
+    for (const p of rawPixels) {
+      thumbCtx.fillStyle = `rgb(${p.r},${p.g},${p.b})`
+      thumbCtx.fillRect(Math.round(p.x * scale), Math.round(p.y * scale), Math.ceil(scale), Math.ceil(scale))
+    }
+    const thumb = thumbCanvas.toDataURL('image/png')
+
+    await saveHistory({
+      type: 'text',
+      thumbnail: thumb, fileName: currentFileName,
+      originalWidth: width, originalHeight: height,
+      width, height,
+      pixelsJson: JSON.stringify(result.value.pixels),
+      transparentIndicesJson: JSON.stringify([]),
+      strategyId: 'euclidean-rgb', fillColor: '#FFFFFF',
+    })
+  } catch (err: any) { error.value = (err.message || $t('app.unknownError')) }
+  finally { loading.value = false }
+}
 
 function toggleCheck(id: number) {
   const s = new Set(checkedIds.value)
@@ -311,6 +553,7 @@ async function processAndSetResult(file: File | Blob) {
     const thumb = await createThumbnail(file)
     if (thumb) {
       await saveHistory({
+        type: 'image',
         thumbnail: thumb, fileName: currentFileName,
         originalWidth: data.originalWidth, originalHeight: data.originalHeight,
         width: data.width, height: data.height,
@@ -348,11 +591,18 @@ function resetAll() {
   currentFileName = ''
   originalFile.value = null
   showCropper.value = false
+  showTextPreview.value = false
+  // 文字模式也清空
+  textInput.value = ''
+  textCharColors.value = {}
+  selectedCharIndex.value = null
+  if (textPreviewUrl.value) { URL.revokeObjectURL(textPreviewUrl.value); textPreviewUrl.value = '' }
+  if (tabMode.value === 'text') return // 文字模式只需清空，不弹上传框
   showUploadModal.value = true
 }
 
 async function openHistory() {
-  historyList.value = await getHistoryList()
+  historyList.value = await getHistoryList(tabMode.value === 'text' ? 'text' : 'image')
   historyFavCount.value = historyList.value.filter(h => h.favorite).length
   checkedIds.value = new Set()
   showHistory.value = true

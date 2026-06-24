@@ -5,14 +5,18 @@
  */
 
 const DB_NAME = 'pindoudou-history'
-const DB_VERSION = 2
+const DB_VERSION = 3
 const STORE_NAME = 'records'
 const MAX_RECORDS = 10
+
+export type HistoryType = 'image' | 'text'
 
 export interface HistoryRecord {
   id: number
   timestamp: number
   favorite: boolean
+  /** 记录类型：图片/文字 */
+  type: HistoryType
   /** 原图 base64 data URL（用于预览缩略图） */
   thumbnail: string
   /** 原图文件名 */
@@ -39,6 +43,7 @@ export interface HistoryMeta {
   id: number
   timestamp: number
   favorite: boolean
+  type: HistoryType
   thumbnail: string
   fileName: string
   originalWidth: number
@@ -49,6 +54,7 @@ export interface HistoryMeta {
 
 /** 导出用的精简格式 */
 export interface HistoryExportItem {
+  type: HistoryType
   timestamp: number
   favorite: boolean
   thumbnail: string
@@ -73,7 +79,6 @@ function openDB(): Promise<IDBDatabase> {
         const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' })
         store.createIndex('favorite', 'favorite', { unique: false })
       } else if (oldVersion < 2) {
-        // 升级到 v2：给已有记录加 favorite 字段
         const tx = (e.target as IDBOpenDBRequest).transaction!
         const store = tx.objectStore(STORE_NAME)
         store.openCursor().onsuccess = (ev) => {
@@ -88,6 +93,22 @@ function openDB(): Promise<IDBDatabase> {
           }
         }
       }
+      if (oldVersion < 3) {
+        // 升级到 v3：给已有记录加 type 字段（默认 'image'）
+        const tx = (e.target as IDBOpenDBRequest).transaction!
+        const store = tx.objectStore(STORE_NAME)
+        store.openCursor().onsuccess = (ev) => {
+          const cursor = (ev.target as IDBRequest<IDBCursorWithValue>).result
+          if (cursor) {
+            const record = cursor.value
+            if (record.type === undefined) {
+              record.type = 'image'
+              cursor.update(record)
+            }
+            cursor.continue()
+          }
+        }
+      }
     }
     req.onsuccess = () => resolve(req.result)
     req.onerror = () => reject(req.error)
@@ -95,7 +116,7 @@ function openDB(): Promise<IDBDatabase> {
 }
 
 /** 保存一条历史记录，自动修剪超过上限的旧记录（不删除收藏的） */
-export async function saveHistory(record: Omit<HistoryRecord, 'id' | 'timestamp' | 'favorite'>): Promise<void> {
+export async function saveHistory(record: Omit<HistoryRecord, 'id' | 'timestamp' | 'favorite'> & { type?: HistoryType }): Promise<void> {
   const db = await openDB()
   const tx = db.transaction(STORE_NAME, 'readwrite')
   const store = tx.objectStore(STORE_NAME)
@@ -109,6 +130,7 @@ export async function saveHistory(record: Omit<HistoryRecord, 'id' | 'timestamp'
   const newId = all.length > 0 ? Math.max(...all.map(r => r.id)) + 1 : 1
   const entry: HistoryRecord = {
     ...record,
+    type: record.type || 'image',
     id: newId,
     timestamp: Date.now(),
     favorite: false,
@@ -148,8 +170,8 @@ export async function toggleFavorite(id: number): Promise<boolean> {
   return record.favorite
 }
 
-/** 获取所有历史记录元数据（按时间倒序，收藏优先） */
-export async function getHistoryList(): Promise<HistoryMeta[]> {
+/** 获取所有历史记录元数据（按时间倒序，收藏优先），可选按类型筛选 */
+export async function getHistoryList(type?: HistoryType): Promise<HistoryMeta[]> {
   const db = await openDB()
   const tx = db.transaction(STORE_NAME, 'readonly')
   const store = tx.objectStore(STORE_NAME)
@@ -158,13 +180,15 @@ export async function getHistoryList(): Promise<HistoryMeta[]> {
     req.onsuccess = () => resolve(req.result)
     req.onerror = () => reject(req.error)
   })
-  return all
+  const filtered = type ? all.filter(r => r.type === type) : all
+  return filtered
     .sort((a, b) => {
       if (a.favorite !== b.favorite) return a.favorite ? -1 : 1
       return b.timestamp - a.timestamp
     })
     .map(r => ({
       id: r.id, timestamp: r.timestamp, favorite: r.favorite,
+      type: r.type || 'image',
       thumbnail: r.thumbnail, fileName: r.fileName,
       originalWidth: r.originalWidth, originalHeight: r.originalHeight,
       width: r.width, height: r.height,
@@ -221,6 +245,7 @@ export async function exportRecords(ids: number[]): Promise<void> {
     const r = await getHistoryRecord(id)
     if (r) {
       items.push({
+        type: r.type || 'image',
         timestamp: r.timestamp, favorite: r.favorite,
         thumbnail: r.thumbnail, fileName: r.fileName,
         originalWidth: r.originalWidth, originalHeight: r.originalHeight,
